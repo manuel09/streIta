@@ -11,7 +11,7 @@ import org.jsoup.nodes.Document
 
 class CalcioStreaming : MainAPI() {
     override var lang = "it"
-    override var mainUrl = "https://calciostreaming.day"
+    override var mainUrl = "https://guardacalcio.cam"
     override var name = "CalcioStreaming"
     override val hasMainPage = true
     override val hasChromecastSupport = true
@@ -76,7 +76,7 @@ class CalcioStreaming : MainAPI() {
 
     private suspend fun extractVideoLinks(
         url: String,
-        callback: (ExtractorLink) -> Unit
+        callback: (newExtractorLink) -> Unit
     ) {
         val document = app.get(url).document
         document.select("button.btn").forEach { button ->
@@ -94,13 +94,13 @@ class CalcioStreaming : MainAPI() {
                 if (newPage.select("script").size >= 6 && streamUrl != null){
                     videoNotFound = false
                     callback(
-                        ExtractorLink(
-                            this.name,
-                            button.text(),
-                            streamUrl,
-                            fixUrl(link),
+                        newExtractorLink(
+                            source = this.name,
+                            name = button.text(),
+                            url = streamUrl,
+                            referer = fixUrl(link),
                             quality = 0,
-                            true
+                            isM3u8 = true
                         )
                     )
                 }
@@ -113,13 +113,13 @@ class CalcioStreaming : MainAPI() {
         data: String,
         isCasting: Boolean,
         subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
+        callback: (newExtractorLink) -> Unit
     ): Boolean {
         extractVideoLinks(data, callback)
         return true
     }
 
-    override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
+    override fun getVideoInterceptor(newextractorLink: newExtractorLink): Interceptor {
         return object :Interceptor{
             override fun intercept(chain: Interceptor.Chain): Response {
                 val response = cfKiller.intercept(chain)
