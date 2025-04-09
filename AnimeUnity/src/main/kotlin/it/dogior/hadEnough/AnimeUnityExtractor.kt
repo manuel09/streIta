@@ -19,15 +19,15 @@ class AnimeUnityExtractor : ExtractorApi() {
             url: String,
             referer: String?,
             subtitleCallback: (SubtitleFile) -> Unit,
-            callback: (ExtractorLink) -> Unit
+            callback: (newExtractorLink) -> Unit
     ) {
 //        val TAG = "AnimeUnity:getUrl"
 //        Log.d(TAG, "REFERER: $referer  URL: $url")
         val masterPlaylist = getMasterPlaylistUrl(url)
         if (url.isNotEmpty()) {
             callback.invoke(
-                ExtractorLink(
-                    source = "Vixcloud",
+                newExtractorLink(
+                    source = "vixcloud.co",
                     name = "AnimeUnity",
                     url = masterPlaylist,
                     referer = referer!!,
