@@ -361,7 +361,7 @@ open class AnimeWorldCore(isSplit: Boolean = false) : MainAPI() {
         data: String,
         isCasting: Boolean,
         subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit,
+        callback: (newExtractorLink) -> Unit,
     ): Boolean {
 //        Log.d("AnimeWorld:loadLinks", "DATA : $data")
         val epNumber = data.split("¿")[0].toInt()
@@ -372,7 +372,7 @@ open class AnimeWorldCore(isSplit: Boolean = false) : MainAPI() {
         val epElems = servers.select("a[data-episode-num=\"$epNumber\"]")
 
         val apiLinks = epElems.map {
-            "https://www.animeworld.so/api/episode/info?id=" + it.attr("data-id")
+            "https://www.animeworld.ac/api/episode/info?id=" + it.attr("data-id")
         }
         val apiResults = apiLinks.mapNotNull {
             tryParseJson<Json>(request(it).text)
@@ -382,10 +382,10 @@ open class AnimeWorldCore(isSplit: Boolean = false) : MainAPI() {
         apiResults.amap {
             if (it.target.contains("AnimeWorld")) {
                 callback.invoke(
-                    ExtractorLink(
-                        name,
-                        "AnimeWorld",
-                        it.grabber,
+                    newExtractorLink(
+                        source = name,
+                        name = "AnimeWorld",
+                        url = it.grabber,
                         referer = mainUrl,
                         quality = Qualities.Unknown.value
                     )

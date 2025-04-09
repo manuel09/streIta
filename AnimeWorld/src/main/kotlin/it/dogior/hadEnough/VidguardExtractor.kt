@@ -22,7 +22,7 @@ class VidguardExtractor : ExtractorApi() {
         url: String,
         referer: String?,
         subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit,
+        callback: (newExtractorLink) -> Unit,
     ) {
         val response = app.get(url).document
         val script = response.selectFirst("script:containsData(eval)")?.data() ?: return
@@ -32,10 +32,10 @@ class VidguardExtractor : ExtractorApi() {
         val playlistUrl = sigDecode(json.stream)
 
         callback.invoke(
-            ExtractorLink(
-                "VidGuard",
-                "VidGuard",
-                playlistUrl,
+            newExtractorLink(
+                source = "VidGuard",
+                name = "VidGuard",
+                url = playlistUrl,
                 referer = mainUrl,
                 quality = Qualities.Unknown.value,
                 isM3u8 = true
