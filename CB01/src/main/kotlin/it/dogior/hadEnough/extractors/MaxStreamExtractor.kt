@@ -11,15 +11,15 @@ import java.io.File
 import java.io.FileOutputStream
 
 class MaxStreamExtractor : ExtractorApi() {
-    override var name = "MaxStream"
-    override var mainUrl = "https://maxstream.video/"
+    override var name = "Supervideo"
+    override var mainUrl = "https://supervideo.cc/"
     override val requiresReferer = false
 
     override suspend fun getUrl(
         url: String,
         referer: String?,
         subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit,
+        callback: (newExtractorLink) -> Unit,
     ) {
         val headers = mapOf(
             "Accept" to "*/*",
@@ -39,7 +39,7 @@ class MaxStreamExtractor : ExtractorApi() {
         val src = unpackedScript.substringAfter("src:\"").substringBefore("\",")
         Log.d("MaxStream", "Script: $src")
         callback.invoke(
-            ExtractorLink(
+            newExtractorLink(
                 source = name,
                 name = name,
                 url = src,
