@@ -32,7 +32,7 @@ class StreamingCommunityExtractor : ExtractorApi() {
             Log.w(TAG, "FINAL URL: $playlistUrl")
 
             callback.invoke(
-                ExtractorLink(
+                newExtractorLink(
                     source = "Vixcloud",
                     name = "Streaming Community",
                     url = playlistUrl,
