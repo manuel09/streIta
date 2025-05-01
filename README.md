@@ -26,6 +26,6 @@ disponibili al momento, questo è un fork dell originale dogior
 Clicca sulla pizza per installare la repo oppure vai in *Impostazioni* -> *Estensioni* -> *Aggiungi
 repository* e nel campo URL scrivi **manuelino09**
 
-[<img alt="alt_text" width="100px" src="pizza.png"/>](https://self-similarity.github.io/http-protocol-redirector?r=cloudstreamrepo://raw.githubusercontent.com/manuel09/streIta/builds/repo.json)
+[<img alt="alt_text" width="100px" src="pizza.png"/>](https://self-similarity.github.io/http-protocol-redirector?r=cloudstreamrepo://raw.githubusercontent.com/manuel09/streIta/refs/heads/builds/repo.json)
 ---
 [Tutte le repository per cloudstream](https://rentry.org/cs3-repos)
