@@ -16,4 +16,5 @@ include(
     "TV",
     "ToonItalia",
     "YouTube"
+    "IlgenioDelloStreaming"
 )
