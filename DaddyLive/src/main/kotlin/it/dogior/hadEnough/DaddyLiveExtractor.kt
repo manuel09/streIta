@@ -3,12 +3,15 @@ package it.dogior.hadEnough
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import com.lagradost.cloudstream3.utils.Qualities
+//import kotlinx.coroutines.Dispatchers
+//import kotlinx.coroutines.withContext
 import java.net.URL
 import java.net.URLEncoder
 
@@ -54,26 +57,12 @@ class DaddyLiveExtractor : ExtractorApi() {
 
         val resp2 = app.post(url1, headers).body.string()
 
-
-        val streamId = Regex("fetch\\('([^']*)").find(resp2)?.groupValues?.get(1)
-            ?: return null
-        val url2 = Regex("var channelKey = \"([^\"]*)").find(resp2)?.groupValues?.get(1)
-            ?: return null
-        val m3u8 = Regex("(/mono\\.m3u8)").find(resp2)?.groupValues?.get(1)
-            ?: return null
-
-        val url3 = "$refererBase$streamId$url2"
-        val resp3 = app.post(url3, headers).body.string()
-        val key =
-            Regex(":\"([^\"]*)").find(resp3)?.groupValues?.get(1)
-                ?: return null
-
-        val finalLink = "https://$key.newkso.ru/$key/$url2$m3u8"
+        val finalUrl = extractFinalUrl(resp2, refererBase) ?: return null
 
         return newExtractorLink(
             sourceName,
             sourceName,
-            finalLink,
+            finalUrl,
             type = ExtractorLinkType.M3U8,
         ) {
             this.referer = ""
@@ -85,6 +74,49 @@ class DaddyLiveExtractor : ExtractorApi() {
                 "User-Agent" to userAgent
             )
         }
-        
+
     }
+
+    private suspend fun extractFinalUrl(page: String, serverUrl: String): String? {
+        // Extracting security values
+        val channelKeyRegex = "(?<=var channelKey = \").*(?=\")".toRegex()
+        val authTsRegex = "(?<=var authTs     = \").*(?=\")".toRegex()
+        val authRndRegex = "(?<=var authRnd    = \").*(?=\")".toRegex()
+        val authSigRegex = "(?<=var authSig    = \").*(?=\")".toRegex()
+
+
+        val channelKey = channelKeyRegex.find(page)?.value ?: return null
+        val authTs = authTsRegex.find(page)?.value ?: return null
+        val authRnd = authRndRegex.find(page)?.value ?: return null
+        val authSig = authSigRegex.find(page)?.value ?: return null
+
+        //Requests
+        val authResponse = //withContext(Dispatchers.IO) {
+            app.get(
+                "https://top2new.newkso.ru/auth.php?channel_id=" + channelKey +
+                        "&ts=" + authTs +
+                        "&rnd=" + authRnd +
+                        "&sig=" + URLEncoder.encode(authSig, "UTF-8")
+            ) //The response doesn't matter apparently
+        //}
+
+        val dataResponse = //withContext(Dispatchers.IO) {
+            app.get(
+                "$serverUrl/server_lookup.php?channel_id=${
+                    URLEncoder.encode(
+                        channelKey,
+                        "UTF-8"
+                    )
+                }"
+            )
+        //}
+        val data = parseJson<DataResponse>(dataResponse.body.string())
+        val m3u8 = when (data.server_key) {
+            "top1/cdn" -> "https://top1.newkso.ru/top1/cdn/$channelKey/mono.m3u8"
+            else -> "https://${data.server_key}new.newkso.ru/${data.server_key}/$channelKey/mono.m3u8"
+        }
+        return m3u8
+    }
+
+    data class DataResponse(val server_key: String)
 }

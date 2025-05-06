@@ -13,12 +13,14 @@ import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.VPNStatus
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.newHomePageResponse
+import com.lagradost.cloudstream3.newLiveSearchResponse
+import com.lagradost.cloudstream3.newLiveStreamLoadResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import java.util.regex.Pattern
 
 class DaddyLiveTVProvider : MainAPI() {
-    override var mainUrl = "https://daddylive.mp"
+    override var mainUrl = "https://daddylive.dad"
     override var name = "DaddyLive TV"
     override val supportedTypes = setOf(TvType.Live)
     override var lang = "un"
@@ -33,7 +35,7 @@ class DaddyLiveTVProvider : MainAPI() {
     @Suppress("ConstPropertyName")
     companion object {
         val channelsName: MutableMap<String, String> = mutableMapOf()
-        private const val posterUrl = "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/refs/heads/master/DaddyLive/daddylive.jpg"
+        private const val poster = "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/refs/heads/master/DaddyLive/daddylive.jpg"
         val countries = listOf(
             "Andorra",
             "UAE",
@@ -318,7 +320,9 @@ class DaddyLiveTVProvider : MainAPI() {
             val name = it[2]
             val url = it[0]
             channelsName["$mainUrl$url"] = name
-            LiveSearchResponse(name, url, this.name, posterUrl = posterUrl)
+            newLiveSearchResponse(name, url){
+                posterUrl = poster
+            }
         }
     }
 
@@ -357,13 +361,10 @@ class DaddyLiveTVProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        return LiveStreamLoadResponse(
-            channelsName[url] ?: "Channel",
-            url,
-            this.name,
-            url,
-            posterUrl = posterUrl
-        )
+        return newLiveStreamLoadResponse(channelsName[url] ?: "Channel",
+            url, url){
+            posterUrl = poster
+        }
     }
 
 

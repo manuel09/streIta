@@ -1,5 +1,5 @@
 // use an integer for version numbers
-version = 9
+version = 10
 
 
 cloudstream {
@@ -23,3 +23,6 @@ cloudstream {
 
     iconUrl = "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/refs/heads/master/DaddyLive/live-streaming.png"
 }
+//dependencies{
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+//}
