@@ -15,6 +15,5 @@ include(
     "StreamingCommunity",
     "TV",
     "ToonItalia",
-    "YouTube",
-    "IlgenioDelloStreaming"
+    "YouTube"
 )
