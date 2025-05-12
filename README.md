@@ -1,13 +1,13 @@
-# [doGior](https://github.com/doGior)'s Had Enough
+# [Manuel09](https://github.com/manuel09)'s Had Enough
 
 [Read in english](https://github.com/doGior/doGiorsHadEnough/blob/master/README_en.md) <br><br>
-Ciao sono doGior e sono stanco di cercare plugin per Cloudstream che finiscono per non funzionare
-ed essere abbandonati, quindi ho deciso di creare una mia repository.
+Ciao sono manuel e sono stanco di cercare plugin per Cloudstream che finiscono per non funzionare
+ed essere abbandonati, quindi ho deciso di creare una mia repository. questo è un fork dell originale doGior
 
 ## Installazione
 
 Clicca sulla pizza per installare la repo oppure vai in *Impostazioni* -> *Estensioni* -> *Aggiungi
-repository* e nel campo URL scrivi **doGior**
+repository* e nel campo URL scrivi **mawe09**
 <p align="center">
   <img alt="alt_text" width="200px" src="pizza.png"/>
 </p>
@@ -29,6 +29,3 @@ Questi sono i plugin disponibili al momento
 | YouTube            | https://www.youtube.com/                               |                Altro                |    🇺🇳    |        ❌        | Puoi incollare l'url di un canale o di una playlist nelle impostazioni del plugin per averli come sezioni nella homepage. Se li vuoi come "serie tv" abiliti i relativi plugin nella ricerca e cercali lì |
 
 [Tutte le repository per cloudstream](https://rentry.org/cs3-repos)
-
-## Donazioni
-[Supportami <3](https://buymeacoffee.com/dogior)
