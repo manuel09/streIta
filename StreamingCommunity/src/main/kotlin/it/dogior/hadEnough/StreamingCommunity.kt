@@ -176,12 +176,12 @@ class StreamingCommunity : MainAPI() {
 
     // This function gets called when you enter the page/show
     override suspend fun load(url: String): LoadResponse {
-//        val TAG = "STREAMINGCOMMUNITY:Item"
+        val TAG = "STREAMINGCOMMUNITY:Item"
 
 //        Log.d(TAG, "URL: $url")
         val actualUrl = getActualUrl(url).replace(mainUrl, "$mainUrl/it")
 
-//        Log.d(TAG, actualUrl)
+        Log.d(TAG, actualUrl)
 
         if (headers["Cookie"].isNullOrEmpty()) {
             setupHeaders()
@@ -230,7 +230,7 @@ class StreamingCommunity : MainAPI() {
         } else {
             val movie = newMovieLoadResponse(
                 title.name,
-                actualUrl,
+                actualUrl.replaceFirst("/it/", "/"),
                 TvType.Movie,
                 dataUrl = "$mainUrl/it/iframe/${title.id}&canPlayFHD=1"
             ) {
