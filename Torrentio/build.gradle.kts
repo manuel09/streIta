@@ -7,7 +7,7 @@ version = 3
 cloudstream {
     // All of these properties are optional, you can safely remove them
     description =
-        "Torrents from Il Corsaro Nero. If something doesn't work the torrent has probably not enough seeds"
+        "Torrents from Torrentio"
     authors = listOf("doGior")
 
     /**
@@ -19,12 +19,12 @@ cloudstream {
      * */
     status = 1
 
-    tvTypes = listOf("Movie", "Torrent")
+    tvTypes = listOf("Movie", "TvSeries", "Torrent", "Documentary")
 
     requiresResources = true
     language = "it"
 
-    iconUrl = "https://ilcorsaronero.link/assets/images/logo-b01e50fc691111643e95a98975b49be1.svg"
+    iconUrl = "https://torrentio.strem.fun/images/logo_v1.png"
 }
 
 android {

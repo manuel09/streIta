@@ -39,9 +39,6 @@ data class Genre(
     @JsonProperty("type") val type: String,
 )
 
-data class SearchData(
-    @JsonProperty("data") val titles: List<Title>,
-)
 
 data class InertiaResponse(
     @JsonProperty("props") val props: Props,
@@ -58,6 +55,7 @@ data class Props(
     @JsonProperty("genres") val genres: List<Genre>?,
     @JsonProperty("label") val label: String?,
     @JsonProperty("browseMoreApiRoute") val browseMoreApiRoute: String?,
+    @JsonProperty("titles") val titles: List<Title>? //Only used in searches
 )
 
 data class Season(

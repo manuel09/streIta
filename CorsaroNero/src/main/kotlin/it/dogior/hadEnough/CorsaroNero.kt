@@ -75,7 +75,7 @@ class CorsaroNero : TmdbProvider() {
 
     override suspend fun search(query: String): List<SearchResponse>? {
         return app.get(
-            "$tmdbAPI/search/multi?language=en-US&query=$query&page=1&include_adult=${settingsForProvider.enableAdult}",
+            "$tmdbAPI/search/movie?language=it-IT&query=$query&page=1&include_adult=true",
             headers = authHeaders
         )
             .parsedSafe<Results>()?.results?.mapNotNull { media ->

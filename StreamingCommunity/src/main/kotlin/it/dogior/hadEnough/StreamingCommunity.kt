@@ -46,7 +46,7 @@ class StreamingCommunity : MainAPI() {
             "X-Inertia-Version" to inertiaVersion,
             "X-Requested-With" to "XMLHttpRequest",
         ).toMutableMap()
-        val mainUrl = "https://streamingunity.to"
+        val mainUrl = "https://streamingunity.to/it"
         var name = "StreamingCommunity"
     }
 
@@ -107,8 +107,9 @@ class StreamingCommunity : MainAPI() {
     //Get the Homepage
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
 //        val TAG = "STREAMINGCOMMUNITY:MainPage"
-        var url: String = mainUrl + "/api" + request.data.substringAfter(mainUrl)
-        val params = emptyMap<String, String>().toMutableMap()
+        var url: String = mainUrl.substringBeforeLast("/") + "/api" +
+                request.data.substringAfter(mainUrl)
+        val params = mutableMapOf("lang" to "it")
 
         val section = request.data.substringAfterLast("/")
         when (section) {
@@ -161,27 +162,26 @@ class StreamingCommunity : MainAPI() {
     //This is to get Title,Href,Posters for Homepage
     override suspend fun search(query: String): List<SearchResponse> {
 //        val TAG = "STREAMINGCOMMUNITY:search"
-        val url = "$mainUrl/api/search"
+        val url = "$mainUrl/search"
         val params = mapOf("q" to query)
 
         if (headers["Cookie"].isNullOrEmpty()) {
             setupHeaders()
         }
-        val response = app.get(url, params = params).body.string()
-//        Log.d(TAG, "Response: $response")
-        val result = parseJson<SearchData>(response)
+        val response = app.get(url, params = params, headers = headers).body.string()
+        val result = parseJson<InertiaResponse>(response)
 
-        return searchResponseBuilder(result.titles)
+        return searchResponseBuilder(result.props.titles!!)
     }
 
     // This function gets called when you enter the page/show
     override suspend fun load(url: String): LoadResponse {
-        val TAG = "STREAMINGCOMMUNITY:Item"
+//        val TAG = "STREAMINGCOMMUNITY:Item"
 
 //        Log.d(TAG, "URL: $url")
-        val actualUrl = getActualUrl(url).replace(mainUrl, "$mainUrl/it")
+        val actualUrl = getActualUrl(url)
 
-        Log.d(TAG, actualUrl)
+//        Log.d(TAG, actualUrl)
 
         if (headers["Cookie"].isNullOrEmpty()) {
             setupHeaders()
@@ -197,16 +197,21 @@ class StreamingCommunity : MainAPI() {
 //        Log.d(TAG, "$props")
         val title = props.title!!
         val genres = title.genres.map { it.name.capitalize() }
-        val domain = mainUrl.substringAfter("://")
+        val domain = mainUrl.substringAfter("://").substringBeforeLast("/")
         val year = title.releaseDate?.substringBefore('-')?.toIntOrNull()
-        val related = props.sliders?.get(0)
+        val related = props.sliders?.getOrNull(0)
         val trailers = title.trailers?.mapNotNull { it.getYoutubeUrl() }
 //        Log.d(TAG, "Trailer List: $trailers")
         if (title.type == "tv") {
             val episodes: List<Episode> = getEpisodes(props)
 //            Log.d(TAG, "Episode List: $episodes")
 
-            val tvShow = newTvSeriesLoadResponse(title.name, actualUrl, TvType.TvSeries, episodes) {
+            val tvShow = newTvSeriesLoadResponse(
+                title.name,
+                actualUrl,
+                TvType.TvSeries,
+                episodes
+            ) {
                 this.posterUrl = "https://cdn.$domain/images/" + title.getBackgroundImageId()
                 this.tags = genres
                 this.episodes = episodes
@@ -232,7 +237,7 @@ class StreamingCommunity : MainAPI() {
                 title.name,
                 actualUrl.replaceFirst("/it/", "/"),
                 TvType.Movie,
-                dataUrl = "$mainUrl/it/iframe/${title.id}&canPlayFHD=1"
+                dataUrl = "$mainUrl/iframe/${title.id}&canPlayFHD=1"
             ) {
 //                this.backgroundPosterUrl = "https://cdn.$domain/images/" + title.getBackgroundImageId()
                 this.posterUrl = "https://cdn.$domain/images/" + title.getBackgroundImageId()
@@ -285,7 +290,7 @@ class StreamingCommunity : MainAPI() {
                 if (inertiaVersion == "") {
                     setupHeaders()
                 }
-                val url = "$mainUrl/it/titles/${title.id}-${title.slug}/season-${season.number}"
+                val url = "$mainUrl/titles/${title.id}-${title.slug}/season-${season.number}"
                 val obj =
                     parseJson<InertiaResponse>(app.get(url, headers = headers).body.string())
                 responseEpisodes.addAll(obj.props.loadedSeason?.episodes!!)
@@ -293,7 +298,7 @@ class StreamingCommunity : MainAPI() {
             responseEpisodes.forEach { ep ->
 
                 episodeList.add(
-                    newEpisode("$mainUrl/it/iframe/${title.id}?episode_id=${ep.id}&canPlayFHD=1") {
+                    newEpisode("$mainUrl/iframe/${title.id}?episode_id=${ep.id}&canPlayFHD=1") {
                         this.name = ep.name
                         this.posterUrl = props.cdnUrl + "/images/" + ep.getCover()
                         this.description = ep.plot

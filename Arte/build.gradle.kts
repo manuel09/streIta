@@ -1,11 +1,11 @@
 // use an integer for version numbers
-version = 19
+version = 1
 
 
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-    description = "TV Shows and Movies from StreamingCommunity (now StreamingUnity)"
+    description = "Documentaries from arte.tv. Other languages will be implemented soon"
     authors = listOf("doGior")
 
     /**
@@ -16,16 +16,11 @@ cloudstream {
     * 3: Beta only
     * */
     status = 1
-    tvTypes = listOf(
-        "TvSeries",
-        "Movie",
-        "Documentary",
-        "Cartoon"
-    )
 
+    tvTypes = listOf("Documentary")
 
     requiresResources = false
     language = "it"
 
-    iconUrl = "https://streamingunity.to/apple-touch-icon.png?v=2"
+    iconUrl = "https://static-cdn.arte.tv/replay/favicons/favicon-194x194.png"
 }
