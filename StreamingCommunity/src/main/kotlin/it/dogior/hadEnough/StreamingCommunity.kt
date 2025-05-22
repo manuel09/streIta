@@ -235,7 +235,7 @@ class StreamingCommunity : MainAPI() {
         } else {
             val movie = newMovieLoadResponse(
                 title.name,
-                actualUrl.replaceFirst("/it/", "/"),
+                actualUrl,
                 TvType.Movie,
                 dataUrl = "$mainUrl/iframe/${title.id}&canPlayFHD=1"
             ) {
@@ -269,7 +269,9 @@ class StreamingCommunity : MainAPI() {
 //            val urlComponents = url.split("/")
 //            val oldUrl = urlComponents.subList(0, 3).joinToString("/")
 //            url.replace(oldUrl, mainUrl)
-            val actualUrl = url.replace(url.toHttpUrl().host, mainUrl.toHttpUrl().host)
+            val replacingValue = if(url.contains("/it/")) mainUrl.toHttpUrl().host else mainUrl.toHttpUrl().host + "/it"
+            val actualUrl = url.replace(url.toHttpUrl().host, replacingValue)
+
             Log.d("StreamingCommunity:UrlFix", "Old: $url\nNew: $actualUrl")
             actualUrl
         } else {
