@@ -1,4 +1,4 @@
-package it.dogior.guardoserie
+package it.dogior.guardaserie
 
 import com.lagradost.cloudstream3.Plugin
 import com.lagradost.cloudstream3.mainPage
@@ -6,8 +6,8 @@ import com.lagradost.cloudstream3.utils.AppUtils
 import com.lagradost.cloudstream3.utils.loadExtractor
 
 @Plugin
-class GuardoSeriePlugin : Plugin() {
+class GuardaSeriePlugin : Plugin() {
     override fun load() {
-        registerMainAPI(GuardoSerie())
+        registerMainAPI(GuardaSerie())
     }
 }
