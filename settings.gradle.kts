@@ -19,5 +19,6 @@ include(
     "TV",
     "ToonItalia",
     "Torrentio",
-    "YouTube"
+    "YouTube",
+    "GuardaSerie"
 )
