@@ -4,7 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 
 class GuardoSerie : MainAPI() {
-    override var name = "GuardoSerie"
+    override var name = "GuardaSerie"
     override var mainUrl = "https://guardoserie.homes"
     override var lang = "it"
     override val hasMainPage = false
