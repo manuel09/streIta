@@ -1,4 +1,4 @@
-package it.dogior.guardaserie
+package it.dogior.hadEnough
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
