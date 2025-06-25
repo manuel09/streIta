@@ -1,22 +1,27 @@
-plugins {
-    id("com.android.library")
-    kotlin("android")
-}
+// use an integer for version numbers
+version = 20
 
-android {
-    compileSdk = 33
-    defaultConfig {
-        minSdk = 21
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-}
 
-dependencies {
-    implementation(project(":api")) // 🔴 NECESSARIO per Plugin, registerMainAPI ecc.
+cloudstream {
+    // All of these properties are optional, you can safely remove them
+
+    description = "TV Shows from GuardoSerie"
+    authors = listOf("doGior")
+
+    /**
+    * Status int as the following:
+    * 0: Down
+    * 1: Ok
+    * 2: Slow
+    * 3: Beta only
+    * */
+    status = 1
+    tvTypes = listOf(
+        "TvSeries"
+    )
+
+
+    requiresResources = false
+    language = "it"
+
 }
