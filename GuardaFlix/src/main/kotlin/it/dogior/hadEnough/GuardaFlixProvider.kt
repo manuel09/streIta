@@ -16,6 +16,8 @@ import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import org.jsoup.nodes.Document
 
+import com.lagradost.cloudstream3.utils.loadExtractor
+
 class GuardaFlixProvider : MainAPI() {
     override var mainUrl = "https://guardaflix.sbs"
     override var name = "GuardaFlix"
@@ -95,14 +97,14 @@ class GuardaFlixProvider : MainAPI() {
 
             newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = posterUrl
-                this.plot = plot
                 this.year = year
+                this.plot = plot
             }
         } else {
             newMovieLoadResponse(title, url, TvType.Movie, url) {
                 this.posterUrl = posterUrl
-                this.plot = plot
                 this.year = year
+                this.plot = plot
             }
         }
     }
