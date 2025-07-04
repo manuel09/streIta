@@ -20,5 +20,6 @@ include(
     "ToonItalia",
     "Torrentio",
     "YouTube",
-    "GuardaSerie"
+    "GuardaSerie",
+    "GuardaFlix"
 )
