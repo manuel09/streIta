@@ -1,5 +1,8 @@
 package it.dogior.hadEnough
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
@@ -56,8 +59,9 @@ class DaddyLiveExtractor : ExtractorApi() {
         val refererBase = "${parsedUrl.protocol}://${parsedUrl.host}"
 
 
+        Log.d("DDL", url1)
         val finalUrl = (if (url1.contains("vidembed")) extractFromVidembed(url1) else
-            extractFinalUrl(url1, refererBase)) ?: return null
+            extractFromJxoxkplay(url1, refererBase)) ?: return null
 
 
         return newExtractorLink(
@@ -94,52 +98,53 @@ class DaddyLiveExtractor : ExtractorApi() {
         )
         val resp = app.post(liveUrl, headers, referer = referer, json = requestBody).body.string()
         val data = parseJson<VidembedResponse>(resp)
-        Log.d("DaddyLiveExtractor", data.toJson())
+        Log.d("DDL", data.toJson())
         return null
     }
 
-    private suspend fun extractFinalUrl(urlNextPage: String, serverUrl: String): String? {
-
-        val page = app.get(urlNextPage, headers).body.string()
-        // Extracting security values
-        val channelKeyRegex = "(?<=var channelKey = \").*(?=\")".toRegex()
-        val authTsRegex = "(?<=var __c = atob.\").*(?=\")".toRegex()
-        val authRndRegex = "(?<=var __d = atob.\").*(?=\")".toRegex()
-        val authSigRegex = "(?<=var __e = atob.\").*(?=\")".toRegex()
-
-
-        val channelKey = channelKeyRegex.find(page)?.value ?: return null
-//        Log.d("DDL", channelKey)
-        val authTs = base64Decode(authTsRegex.find(page)?.value ?: return null)
-//        Log.d("DDL", authTs)
-        val authRnd = base64Decode(authRndRegex.find(page)?.value ?: return null)
-//        Log.d("DDL", authRnd)
-        val authSig = base64Decode(authSigRegex.find(page)?.value ?: return null)
-//        Log.d("DDL", authSig)
-
-        //Requests
-//        Log.d("DDL", "TRYING TO AUTH")
-        val h = mapOf(
-            "User-Agent" to userAgent,
-            "Referer" to "$serverUrl/",
-            "Origin" to serverUrl
+    private suspend fun extractFromJxoxkplay(urlNextPage: String, serverUrl: String): String? {
+        val page = app.get(urlNextPage, headers).document
+        val script = page.select("script").first { it.data().contains("const BUNDLE") }.data()
+        val bundle = base64Decode(
+            Regex("""(?<=const BUNDLE = ").*(?=")""").find(script)?.value ?: return null
         )
+        val bundleObj = parseJson<Bundle>(bundle)
+        Log.d("DDL", bundleObj.toJson())
+        val channelKey =
+            Regex("""(?<=const CHANNEL_KEY = ").*(?=")""").find(script)?.value ?: return null
+//        Log.d("DDL", channelKey)
+        val params = mapOf(
+            "channel_id" to channelKey,
+            "ts" to base64Decode(bundleObj.bTs),
+            "rnd" to base64Decode(bundleObj.bRnd),
+            "sig" to base64Decode(bundleObj.bSig),
+        )
+        Log.d("DDL", "Params: $params")
+        //Requests
         val authResponse = //withContext(Dispatchers.IO) {
             app.get(
-                "https://top2new.newkso.ru/auth.php?channel_id=" + channelKey +
-                        "&ts=" + authTs +
-                        "&rnd=" + authRnd +
-                        "&sig=" + URLEncoder.encode(authSig, "UTF-8"),
-                headers = h,
+                "https://top2new.newkso.ru/auth.php",
+                params = params,
+                headers = mapOf(
+                    "User-Agent" to userAgent,
+                    "Referer" to "$serverUrl/",
+                    "Origin" to serverUrl
+                ),
 //                interceptor = CloudflareKiller()
             )
         //}
 //        Log.d("DDL", authResponse.code.toString())
         Log.d("DDL", "Auth: " + authResponse.body.string())
+        if (authResponse.code == 403) return null
 
         val serverKey = app.get("$serverUrl/server_lookup.php?channel_id=$channelKey").body.string()
         Log.d("DDL", "Server Key: $serverKey")
-        val data = parseJson<DataResponse>(serverKey)
+        val data = try { parseJson<DataResponse>(serverKey) }
+        catch (e: MismatchedInputException){
+            Log.d("DDL", serverKey)
+            Log.d("DDL", "$e")
+            return null
+        }
         //So far it works
         val m3u8 = when (data.serverKey) {
             "top1/cdn" -> "https://top1.newkso.ru/top1/cdn/$channelKey/mono.m3u8"
@@ -149,9 +154,22 @@ class DaddyLiveExtractor : ExtractorApi() {
         return m3u8
     }
 
-    data class DataResponse(val serverKey: String)
+    data class DataResponse(@JsonProperty("server_key") val serverKey: String)
     data class VidembedResponse(
         val success: Boolean,
         val player: String
+    )
+
+    data class Bundle(
+        @JsonProperty("b_host")
+        val bHost: String,
+        @JsonProperty("b_rnd")
+        val bRnd: String,
+        @JsonProperty("b_script")
+        val bScript: String,
+        @JsonProperty("b_sig")
+        val bSig: String,
+        @JsonProperty("b_ts")
+        val bTs: String
     )
 }
