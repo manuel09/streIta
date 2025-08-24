@@ -14,6 +14,7 @@ include(
     "CorsaroNero",
     "DaddyLive",
     "Huhu",
+    "IPTV",
 //    "OnlineSerieTV",
     "StreamingCommunity",
     "TV",
