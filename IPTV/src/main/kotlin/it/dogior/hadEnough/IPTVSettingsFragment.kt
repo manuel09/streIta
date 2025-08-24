@@ -103,7 +103,7 @@ class IPTVSettingsFragment(private val plugin: IPTVPlugin) : BottomSheetDialogFr
         })
 
         val listLinkButton = settings.findView<ImageView>("button_list_link")
-        listLinkButton.setImageDrawable(getDrawable("edit_icon"))
+        listLinkButton.setImageDrawable(getDrawable("settings_icon"))
         listLinkButton.makeTvCompatible()
 
         listLinkButton.setOnClickListener(object : View.OnClickListener {
