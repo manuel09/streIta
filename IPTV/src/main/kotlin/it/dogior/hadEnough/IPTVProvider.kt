@@ -6,9 +6,7 @@ import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import okhttp3.Interceptor
 
-class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
-    override var mainUrl = mainUrl
-    override var name = name
+class IPTVProvider(override var mainUrl: String, override var name: String) : MainAPI() {
     override val hasMainPage = true
     override var lang = "un"
     override val hasQuickSearch = true
@@ -17,8 +15,8 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
         TvType.Live
     )
 
-    val items = mutableMapOf<String, Playlist?>()
-    val headers = mapOf("User-Agent" to "Player (Linux; Android 14)")
+    private val items = mutableMapOf<String, Playlist?>()
+    private val headers = mapOf("User-Agent" to "Player (Linux; Android 14)")
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         items[name] = IptvPlaylistParser().parseM3U(app.get(mainUrl, headers = headers).text)
@@ -34,13 +32,18 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
                     val key = item.attributes["key"].toString()
                     val keyid = item.attributes["keyid"].toString()
 
-                    LiveSearchResponse(
+                    newLiveSearchResponse(
                         name = channelname,
-                        url = LoadData(streamurl, channelname, posterurl, chGroup, key, keyid).toJson(),
-                        apiName = name,
-                        type = TvType.Live,
-                        posterUrl = posterurl,
-                    )
+                        url = LoadData(
+                            streamurl,
+                            channelname,
+                            posterurl,
+                            chGroup,
+                            key,
+                            keyid
+                        ).toJson(),
+                        type = TvType.Live
+                    ) { this.posterUrl = posterurl }
                 }
 
                 HomePageList(title, show, isHorizontalImages = true)
@@ -54,7 +57,9 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
             items[name] = IptvPlaylistParser().parseM3U(app.get(mainUrl, headers = headers).text)
         }
 
-        return items[name]!!.items.filter { it.title.toString().lowercase().contains(query.lowercase()) }.map { item ->
+        return items[name]!!.items.filter {
+            it.title.toString().lowercase().contains(query.lowercase())
+        }.map { item ->
             val streamurl = item.url.toString()
             val channelname = item.title.toString()
             val posterurl = item.attributes["tvg-logo"].toString()
@@ -62,13 +67,18 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
             val key = item.attributes["key"].toString()
             val keyid = item.attributes["keyid"].toString()
 
-            LiveSearchResponse(
+            newLiveSearchResponse(
                 name = channelname,
-                url = LoadData(streamurl, channelname, posterurl, chGroup, key, keyid).toJson(),
-                apiName = name,
-                type = TvType.Live,
-                posterUrl = posterurl,
-            )
+                url = LoadData(
+                    streamurl,
+                    channelname,
+                    posterurl,
+                    chGroup,
+                    key,
+                    keyid
+                ).toJson(),
+                type = TvType.Live
+            ) { this.posterUrl = posterurl }
         }
     }
 
@@ -92,28 +102,40 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
                 val key = item.attributes["key"].toString()
                 val keyid = item.attributes["keyid"].toString()
 
-                recommendations.add(LiveSearchResponse(
-                    name = rcChannelName,
-                    url = LoadData(rcStreamUrl, rcChannelName, rcPosterUrl, rcChGroup, key, keyid).toJson(),
-                    apiName = name,
-                    type = TvType.Live,
-                    posterUrl = rcPosterUrl,
-                ))
+                recommendations.add(
+                    newLiveSearchResponse(
+                        name = rcChannelName,
+                        url = LoadData(
+                            rcStreamUrl,
+                            rcChannelName,
+                            rcPosterUrl,
+                            rcChGroup,
+                            key,
+                            keyid
+                        ).toJson(),
+                        type = TvType.Live
+                    ) { this.posterUrl = rcPosterUrl }
+                )
             }
         }
 
-        return newLiveStreamLoadResponse(name = loadData.title,
-            url = url,dataUrl = url,) {
+        return newLiveStreamLoadResponse(
+            name = loadData.title,
+            url = url, dataUrl = url,
+        ) {
             posterUrl = loadData.poster
             this.recommendations = recommendations
         }
     }
 
-    override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
         val loadData = parseJson<LoadData>(data)
         val item = items[name]!!.items.first { it.url == loadData.url }
-        val response = checkLinkType(loadData.url, item.headers)
-        val isM3u8 = if (response == "m3u8") true else false
         if (loadData.url.contains(".mpd")) {
             callback.invoke(
                 newDrmExtractorLink(
@@ -121,20 +143,20 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
                     source = loadData.title,
                     url = loadData.url,
                     uuid = CLEARKEY_UUID
-                ){
+                ) {
                     this.kid = loadData.keyid.toString().trim()
                     this.key = loadData.key.toString().trim()
                 }
-               /* DrmExtractorLink(
-                    name = this.name,
-                    source = loadData.title,
-                    url = loadData.url,
-                    referer = "",
-                    quality = Qualities.Unknown.value,
-                    type = INFER_TYPE,
-                    kid = loadData.keyid.toString().trim(),
-                    key = loadData.key.toString().trim(),
-                )*/
+                /* DrmExtractorLink(
+                     name = this.name,
+                     source = loadData.title,
+                     url = loadData.url,
+                     referer = "",
+                     quality = Qualities.Unknown.value,
+                     type = INFER_TYPE,
+                     kid = loadData.keyid.toString().trim(),
+                     key = loadData.key.toString().trim(),
+                 )*/
             )
         } else {
             callback.invoke(
@@ -144,7 +166,7 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
                     source = loadData.title,
                     url = loadData.url,
                     type = ExtractorLinkType.M3U8
-                ){
+                ) {
                     this.headers = item.headers
                     this.referer = item.headers["referrer"] ?: ""
                     this.quality = Qualities.Unknown.value
@@ -155,7 +177,7 @@ class IPTVProvider(mainUrl: String, name: String) : MainAPI() {
     }
 
     @Suppress("ObjectLiteralToLambda")
-    override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor? {
+    override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
         return object : Interceptor {
             override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
                 val request = chain.request()
