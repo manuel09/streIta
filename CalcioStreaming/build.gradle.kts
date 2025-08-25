@@ -1,5 +1,5 @@
 // use an integer for version numbers
-version = 4
+version = 5
 
 
 cloudstream {
@@ -16,10 +16,10 @@ cloudstream {
      * 2: Slow
      * 3: Beta only
      * */
-    status = 0 // will be 3 if unspecified
+    status = 1 // will be 3 if unspecified
     tvTypes = listOf(
         "Live",
     )
 
-    iconUrl = "https://www.calciostreaming.cool/templates/calciostreaming1/images/icons/apple-touch-icon.png"
+    iconUrl = "https://direttecommunity.gratis/templates/calciostreaming1/images/icons/apple-touch-icon.png"
 }
