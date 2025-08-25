@@ -5,7 +5,7 @@ version = 2
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-    description = "Movies and Tv Series from Altadefinizione"
+    description = "They added cloudflare 😔. Movies and Tv Series from Altadefinizione"
     authors = listOf("doGior")
 
     /**
@@ -15,12 +15,12 @@ cloudstream {
     * 2: Slow
     * 3: Beta only
     * */
-    status = 1
+    status = 0
 
     tvTypes = listOf("Movie", "TvSeries", "Documentary")
 
     requiresResources = false
     language = "it"
 
-    iconUrl = "https://altadefinizionegratis.art/templates/Dark/img/favicon.ico"
+    iconUrl = "https://altadefinizione.free/templates/Alta/images/favicon/apple-touch-icon.png"
 }
