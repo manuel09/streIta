@@ -1,7 +1,6 @@
 package it.dogior.hadEnough
 
 import com.lagradost.api.Log
-import com.lagradost.cloudstream3.AnimeSearchResponse
 import com.lagradost.cloudstream3.DubStatus
 import com.lagradost.cloudstream3.HomePageList
 import com.lagradost.cloudstream3.HomePageResponse
@@ -378,10 +377,10 @@ class AnimeUnity : MainAPI() {
 
         val sourceUrl = document.select("video-player").attr("embed_url")
 //        // Log.d(localTag, "Document: $document")
-        // Log.d(localTag, "Iframe: $sourceUrl")
+//         Log.d(localTag, "Iframe: $sourceUrl")
 
 
-        AnimeUnityExtractor().getUrl(
+        VixCloudExtractor().getUrl(
             url = sourceUrl,
             referer = mainUrl,
             subtitleCallback = subtitleCallback,

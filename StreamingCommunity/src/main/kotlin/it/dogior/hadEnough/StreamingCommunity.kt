@@ -169,7 +169,7 @@ class StreamingCommunity : MainAPI() {
         return searchResponseBuilder(result.props.titles!!)
     }
 
-    @Prerelease
+    /*@Prerelease
     override suspend fun search(query: String, page: Int): List<SearchResponse> {
         val searchUrl = "${mainUrl.replace("/it", "")}/api/search"
         val params = mutableMapOf("q" to query, "lang" to "it")
@@ -179,7 +179,7 @@ class StreamingCommunity : MainAPI() {
         val response = app.get(searchUrl, params = params, headers = headers).body.string()
         val result = parseJson<it.dogior.hadEnough.SearchResponse>(response)
         return searchResponseBuilder(result.data)
-    }
+    }*/
 
     private suspend fun getPoster(title: TitleProp): String? {
         if (title.tmdbId != null){
