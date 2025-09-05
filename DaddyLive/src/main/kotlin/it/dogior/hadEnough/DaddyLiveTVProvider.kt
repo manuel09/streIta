@@ -1,5 +1,6 @@
 package it.dogior.hadEnough
 
+import com.lagradost.api.Log
 import com.lagradost.cloudstream3.HomePageList
 import com.lagradost.cloudstream3.HomePageResponse
 import com.lagradost.cloudstream3.LiveSearchResponse
@@ -373,6 +374,13 @@ class DaddyLiveTVProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit,
     ): Boolean {
-        return loadExtractor(data, null, subtitleCallback, callback)
+        val players = listOf("stream", "cast", "watch", "player")
+        val servers = players.map { data.replace("/stream/", "/$it/") }
+
+        val output = servers.map {
+            loadExtractor(it, null, subtitleCallback, callback)
+        }
+
+        return output.any{it}
     }
 }

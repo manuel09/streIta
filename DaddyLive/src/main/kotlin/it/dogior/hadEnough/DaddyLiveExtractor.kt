@@ -2,7 +2,6 @@ package it.dogior.hadEnough
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
@@ -17,7 +16,6 @@ import com.lagradost.cloudstream3.utils.newExtractorLink
 import com.lagradost.cloudstream3.utils.Qualities
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.net.URL
-import java.net.URLEncoder
 
 class DaddyLiveExtractor : ExtractorApi() {
     override val mainUrl = ""
@@ -59,7 +57,7 @@ class DaddyLiveExtractor : ExtractorApi() {
         val refererBase = "${parsedUrl.protocol}://${parsedUrl.host}"
 
 
-        Log.d("DDL", url1)
+        Log.d("DDLExt", url1)
         val finalUrl = (if (url1.contains("vidembed")) extractFromVidembed(url1) else
             extractFromJxoxkplay(url1, refererBase)) ?: return null
 
@@ -97,29 +95,34 @@ class DaddyLiveExtractor : ExtractorApi() {
             "X-Requested-With" to "XMLHttpRequest"
         )
         val resp = app.post(liveUrl, headers, referer = referer, json = requestBody).body.string()
+        Log.d("DDLExt", liveUrl)
         val data = parseJson<VidembedResponse>(resp)
-        Log.d("DDL", data.toJson())
+        Log.d("DDLExt", data.toJson())
+        Log.d("DDLExt", data.player)
+
         return null
     }
 
     private suspend fun extractFromJxoxkplay(urlNextPage: String, serverUrl: String): String? {
         val page = app.get(urlNextPage, headers).document
-        val script = page.select("script").first { it.data().contains("const BUNDLE") }.data()
+        val script = page.select("script").first { it.data().contains("const XJZ") }.data()
+        Log.d("DDLExt", script)
+
         val bundle = base64Decode(
-            Regex("""(?<=const BUNDLE = ").*(?=")""").find(script)?.value ?: return null
+            Regex("""(?<=const XJZ=").*(?=")""").find(script)?.value ?: return null
         )
         val bundleObj = parseJson<Bundle>(bundle)
-        Log.d("DDL", bundleObj.toJson())
+        Log.d("DDLExt", bundleObj.toJson())
         val channelKey =
-            Regex("""(?<=const CHANNEL_KEY = ").*(?=")""").find(script)?.value ?: return null
-//        Log.d("DDL", channelKey)
+            Regex("""(?<=const CHANNEL_KEY=").*(?=")""").find(script)?.value ?: return null
+//        Log.d("DDLExt", channelKey)
         val params = mapOf(
             "channel_id" to channelKey,
             "ts" to base64Decode(bundleObj.bTs),
             "rnd" to base64Decode(bundleObj.bRnd),
             "sig" to base64Decode(bundleObj.bSig),
         )
-        Log.d("DDL", "Params: $params")
+        Log.d("DDLExt", "Params: $params")
         //Requests
         val authResponse = //withContext(Dispatchers.IO) {
             app.get(
@@ -133,16 +136,16 @@ class DaddyLiveExtractor : ExtractorApi() {
 //                interceptor = CloudflareKiller()
             )
         //}
-//        Log.d("DDL", authResponse.code.toString())
-        Log.d("DDL", "Auth: " + authResponse.body.string())
+//        Log.d("DDLExt", authResponse.code.toString())
+        Log.d("DDLExt", "Auth: " + authResponse.body.string())
         if (authResponse.code == 403) return null
 
         val serverKey = app.get("$serverUrl/server_lookup.php?channel_id=$channelKey").body.string()
-        Log.d("DDL", "Server Key: $serverKey")
+        Log.d("DDLExt", "Server Key: $serverKey")
         val data = try { parseJson<DataResponse>(serverKey) }
         catch (e: MismatchedInputException){
-            Log.d("DDL", serverKey)
-            Log.d("DDL", "$e")
+            Log.d("DDLExt", serverKey)
+            Log.d("DDLExt", "$e")
             return null
         }
         //So far it works
@@ -150,7 +153,7 @@ class DaddyLiveExtractor : ExtractorApi() {
             "top1/cdn" -> "https://top1.newkso.ru/top1/cdn/$channelKey/mono.m3u8"
             else -> "https://${data.serverKey}new.newkso.ru/${data.serverKey}/$channelKey/mono.m3u8"
         }
-        Log.d("DDL", "Final Url: $m3u8")
+        Log.d("DDLExt", "Final Url: $m3u8")
         return m3u8
     }
 
@@ -159,7 +162,6 @@ class DaddyLiveExtractor : ExtractorApi() {
         val success: Boolean,
         val player: String
     )
-
     data class Bundle(
         @JsonProperty("b_host")
         val bHost: String,
