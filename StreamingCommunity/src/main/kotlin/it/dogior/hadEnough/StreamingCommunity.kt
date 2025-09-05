@@ -14,6 +14,7 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addTMDbId
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MainPageRequest
+import com.lagradost.cloudstream3.Prerelease
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.app
@@ -46,8 +47,9 @@ class StreamingCommunity : MainAPI() {
             "X-Inertia-Version" to inertiaVersion,
             "X-Requested-With" to "XMLHttpRequest",
         ).toMutableMap()
-        val mainUrl = "https://streamingunity.to/it"
+        val mainUrl = "https://streamingunity.co/it"
         var name = "StreamingCommunity"
+        val TAG = "SCommunity"
     }
 
     private val sectionNamesList = mainPageOf(
@@ -106,8 +108,7 @@ class StreamingCommunity : MainAPI() {
 
     //Get the Homepage
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-//        val TAG = "STREAMINGCOMMUNITY:MainPage"
-        var url: String = mainUrl.substringBeforeLast("/") + "/api" +
+        var url = mainUrl.substringBeforeLast("/") + "/api" +
                 request.data.substringAfter(mainUrl)
         val params = mutableMapOf("lang" to "it")
 
@@ -135,12 +136,9 @@ class StreamingCommunity : MainAPI() {
         if (page > 0) {
             params["offset"] = ((page - 1) * 60).toString()
         }
-//        Log.d(TAG, "Url: $url")
-//        Log.d(TAG, "Params: $params")
         val response = app.get(url, params = params)
         val responseString = response.body.string()
         val responseJson = parseJson<Section>(responseString)
-//        Log.d(TAG, "Response: $responseJson")
 
         val titlesList = searchResponseBuilder(responseJson.titles)
 
@@ -158,10 +156,7 @@ class StreamingCommunity : MainAPI() {
     }
 
 
-    // This function gets called when you search for something also
-    //This is to get Title,Href,Posters for Homepage
     override suspend fun search(query: String): List<SearchResponse> {
-//        val TAG = "STREAMINGCOMMUNITY:search"
         val url = "$mainUrl/search"
         val params = mapOf("q" to query)
 
@@ -174,37 +169,49 @@ class StreamingCommunity : MainAPI() {
         return searchResponseBuilder(result.props.titles!!)
     }
 
-    // This function gets called when you enter the page/show
+    @Prerelease
+    suspend fun search(query: String, page: Int): List<SearchResponse> {
+        val searchUrl = "${mainUrl.replace("/it", "")}/api/search"
+        val params = mutableMapOf("q" to query, "lang" to "it")
+        if (page > 0) {
+            params["offset"] = ((page - 1) * 60).toString()
+        }
+        val response = app.get(searchUrl, params = params, headers = headers).body.string()
+        val result = parseJson<it.dogior.hadEnough.SearchResponse>(response)
+        return searchResponseBuilder(result.data)
+    }
+
+    private suspend fun getPoster(title: TitleProp): String? {
+        if (title.tmdbId != null){
+            val tmdbUrl = "https://www.themoviedb.org/${title.type}/${title.tmdbId}"
+            val resp = app.get(tmdbUrl).document
+            val img = resp.select("img.poster.w-full").attr("srcset").split(", ").last()
+            return img
+        } else{
+            val domain = mainUrl.substringAfter("://").substringBeforeLast("/")
+            return title.getBackgroundImageId().let { "https://cdn.$domain/images/$it" }
+        }
+    }
+
     override suspend fun load(url: String): LoadResponse {
-//        val TAG = "STREAMINGCOMMUNITY:Item"
-
-//        Log.d(TAG, "URL: $url")
         val actualUrl = getActualUrl(url)
-
-//        Log.d(TAG, actualUrl)
-
         if (headers["Cookie"].isNullOrEmpty()) {
             setupHeaders()
         }
-//        Log.d(TAG, "Headers: ${headers}")
         val response = app.get(actualUrl, headers = headers)
         val responseBody = response.body.string()
-//        Log.d(TAG, "Body: $responseBody")
-//        Log.d(TAG, "Request: ${response.okhttpResponse.request}")
-//        Log.d(TAG, "Response: $responseBody")
 
+        val domain = mainUrl.substringAfter("://").substringBeforeLast("/")
         val props = parseJson<InertiaResponse>(responseBody).props
-//        Log.d(TAG, "$props")
         val title = props.title!!
         val genres = title.genres.map { it.name.capitalize() }
-        val domain = mainUrl.substringAfter("://").substringBeforeLast("/")
         val year = title.releaseDate?.substringBefore('-')?.toIntOrNull()
         val related = props.sliders?.getOrNull(0)
         val trailers = title.trailers?.mapNotNull { it.getYoutubeUrl() }
-//        Log.d(TAG, "Trailer List: $trailers")
+        val poster = getPoster(title)
+
         if (title.type == "tv") {
             val episodes: List<Episode> = getEpisodes(props)
-//            Log.d(TAG, "Episode List: $episodes")
 
             val tvShow = newTvSeriesLoadResponse(
                 title.name,
@@ -212,7 +219,8 @@ class StreamingCommunity : MainAPI() {
                 TvType.TvSeries,
                 episodes
             ) {
-                this.posterUrl = "https://cdn.$domain/images/" + title.getBackgroundImageId()
+                this.posterUrl = poster
+                title.getBackgroundImageId().let { this.backgroundPosterUrl = "https://cdn.$domain/images/$it"}
                 this.tags = genres
                 this.episodes = episodes
                 this.year = year
@@ -230,7 +238,6 @@ class StreamingCommunity : MainAPI() {
                 }
 
             }
-//            Log.d(TAG, "TV Show: $tvShow")
             return tvShow
         } else {
             val movie = newMovieLoadResponse(
@@ -239,8 +246,8 @@ class StreamingCommunity : MainAPI() {
                 TvType.Movie,
                 dataUrl = "$mainUrl/iframe/${title.id}&canPlayFHD=1"
             ) {
-//                this.backgroundPosterUrl = "https://cdn.$domain/images/" + title.getBackgroundImageId()
-                this.posterUrl = "https://cdn.$domain/images/" + title.getBackgroundImageId()
+                this.posterUrl = poster
+                title.getBackgroundImageId().let { this.backgroundPosterUrl = "https://cdn.$domain/images/$it"}
                 this.tags = genres
                 this.year = year
                 this.plot = title.plot
@@ -259,28 +266,23 @@ class StreamingCommunity : MainAPI() {
                     }
                 }
             }
-//            Log.d(TAG, "Movie: $movie")
             return movie
         }
     }
 
     private fun getActualUrl(url: String) =
         if (!url.contains(mainUrl)) {
-//            val urlComponents = url.split("/")
-//            val oldUrl = urlComponents.subList(0, 3).joinToString("/")
-//            url.replace(oldUrl, mainUrl)
-            val replacingValue = if(url.contains("/it/")) mainUrl.toHttpUrl().host else mainUrl.toHttpUrl().host + "/it"
+            val replacingValue =
+                if (url.contains("/it/")) mainUrl.toHttpUrl().host else mainUrl.toHttpUrl().host + "/it"
             val actualUrl = url.replace(url.toHttpUrl().host, replacingValue)
 
-            Log.d("StreamingCommunity:UrlFix", "Old: $url\nNew: $actualUrl")
+            Log.d("$TAG:UrlFix", "Old: $url\nNew: $actualUrl")
             actualUrl
         } else {
             url
         }
 
     private suspend fun getEpisodes(props: Props): List<Episode> {
-//        val TAG = "STREAMINGCOMMUNITY:getEpisodes"
-
         val episodeList = mutableListOf<Episode>()
         val title = props.title
 
@@ -315,23 +317,25 @@ class StreamingCommunity : MainAPI() {
         return episodeList
     }
 
-    // This function is how you load the links
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val TAG = "STREAMINGCOMMUNITY:Links"
-
         Log.d(TAG, "Url : $data")
+        if (data.isEmpty()) return false
 
-        StreamingCommunityExtractor().getUrl(
-            url = data,
+
+        val response = app.get(data).document
+        val iframeSrc = response.select("iframe").attr("src")
+
+        VixCloudExtractor().getUrl(
+            url = iframeSrc,
             referer = mainUrl,
             subtitleCallback = subtitleCallback,
             callback = callback
         )
-        return false
+        return true
     }
 }
