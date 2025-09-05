@@ -169,30 +169,7 @@ class StreamingCommunity : MainAPI() {
         return searchResponseBuilder(result.props.titles!!)
     }
 
-    @Prerelease
-    override suspend fun search(query: String, page: Int): List<SearchResponse> {
-        val searchUrl = "${mainUrl.replace("/it", "")}/api/search"
-        val params = mutableMapOf("q" to query, "lang" to "it")
-        if (page > 0) {
-            params["offset"] = ((page - 1) * 60).toString()
-        }
-        val response = app.get(searchUrl, params = params, headers = headers).body.string()
-        val result = parseJson<it.dogior.hadEnough.SearchResponse>(response)
-        return searchResponseBuilder(result.data)
-    }
-
-    private suspend fun getPoster(title: TitleProp): String? {
-        if (title.tmdbId != null){
-            val tmdbUrl = "https://www.themoviedb.org/${title.type}/${title.tmdbId}"
-            val resp = app.get(tmdbUrl).document
-            val img = resp.select("img.poster.w-full").attr("srcset").split(", ").last()
-            return img
-        } else{
-            val domain = mainUrl.substringAfter("://").substringBeforeLast("/")
-            return title.getBackgroundImageId().let { "https://cdn.$domain/images/$it" }
-        }
-    }
-
+    // This function gets called when you enter the page/show
     override suspend fun load(url: String): LoadResponse {
         val actualUrl = getActualUrl(url)
         if (headers["Cookie"].isNullOrEmpty()) {
