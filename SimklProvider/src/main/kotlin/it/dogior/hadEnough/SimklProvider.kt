@@ -7,6 +7,7 @@ import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.fixUrl
 import com.lagradost.cloudstream3.fixUrlNull
+import com.lagradost.cloudstream3.newMovieLoadResponse
 import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 
@@ -34,7 +35,7 @@ open class SimklProvider : MainAPI() {
         val title = itemElement.select("div.SimklTVAboutTitleText h1").text()
         val rating = itemElement.select("span.SimklTVRatingAverage").text().split(" ").last()
         val description = doc.selectFirst("td.SimklTVAboutDetailsText")
-            ?.ownText() + " " + doc.selectFirst("#moreDesc")?.ownText()
+            ?.ownText() + " " + (doc.selectFirst("#moreDesc")?.ownText() ?: "")
         val genres = itemElement.select("td.SimklTVAboutGenre a").text()
         val links = doc.select(".SimklTVAboutTabsDetailsLinks > a")
         val tmdbLink = links.firstOrNull { a -> a.text().contains("TMDB") }?.attr("href")
@@ -43,7 +44,9 @@ open class SimklProvider : MainAPI() {
         val duration = try {
             itemElement.select(".SimklTVAboutYearCountry > span")
                 .first { it.attr("data-title").contains("Length") }.ownText()
-        } catch (e: NoSuchElementException){ null}
+        } catch (e: NoSuchElementException) {
+            null
+        }
 
 
         val poster = if (!tmdbLink.isNullOrEmpty()) {
@@ -65,7 +68,18 @@ open class SimklProvider : MainAPI() {
             }
         }
 
-        return newTvSeriesLoadResponse(title, "", TvType.TvSeries, emptyList()) {
+        val type = if (duration != null) {
+            TvType.Movie
+        } else {
+            TvType.TvSeries
+        }
+
+        val loadResponse = if (duration != null) {
+            newMovieLoadResponse(title, "", type, "")
+        } else {
+            newTvSeriesLoadResponse(title, "", type, emptyList())
+        }
+        return loadResponse.apply {
             this.plot = description
             this.tags = genres.split(" ")
             this.posterUrl = poster
