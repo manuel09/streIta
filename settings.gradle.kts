@@ -16,6 +16,7 @@ include(
     "Huhu",
     "IPTV",
 //    "OnlineSerieTV",
+    "SimklProvider",
     "StreamingCommunity",
     "TV",
 //    "ToonItalia",
