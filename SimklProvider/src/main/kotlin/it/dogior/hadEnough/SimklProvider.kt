@@ -37,6 +37,7 @@ open class SimklProvider : MainAPI() {
             ?.ownText() + " " + doc.selectFirst("#moreDesc")?.ownText()
         val genres = itemElement.select("td.SimklTVAboutGenre a").text()
         val links = doc.select(".SimklTVAboutTabsDetailsLinks > a")
+        val tmdbLink = links.firstOrNull { a -> a.text().contains("TMDB") }?.attr("href")
         val year =
             itemElement.select("span.detailYearInfo > a").attr("data-title").substringAfterLast("/")
         val duration = try {
@@ -44,9 +45,8 @@ open class SimklProvider : MainAPI() {
                 .first { it.attr("data-title").contains("Length") }.ownText()
         } catch (e: NoSuchElementException){ null}
 
-        val tmdbLink = links.first { a -> a.text().contains("TMDB") }.attr("href")
 
-        val poster = if (tmdbLink.isNotEmpty()) {
+        val poster = if (!tmdbLink.isNullOrEmpty()) {
             val resp = app.get(tmdbLink).document
             resp.select("img.poster.w-full").attr("srcset").split(", ").last()
         } else {
