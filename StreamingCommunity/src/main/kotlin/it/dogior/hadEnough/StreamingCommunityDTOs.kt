@@ -11,7 +11,7 @@ data class Section(
 data class SearchResponse(
     @JsonProperty("current_page") val currentPage: Int,
     @JsonProperty("data") val data: List<Title>,
-    @JsonProperty("last_page") val lastPge: Int
+    @JsonProperty("last_page") val lastPage: Int
 )
 
 data class Title(

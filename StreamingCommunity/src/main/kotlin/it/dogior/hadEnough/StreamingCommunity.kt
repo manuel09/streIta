@@ -14,7 +14,8 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addTMDbId
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MainPageRequest
-import com.lagradost.cloudstream3.Prerelease
+import com.lagradost.cloudstream3.SearchResponseList
+import com.lagradost.cloudstream3.newSearchResponseList
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.app
@@ -156,7 +157,7 @@ class StreamingCommunity : MainAPI() {
     }
 
 
-    override suspend fun search(query: String): List<SearchResponse> {
+    /*override suspend fun search(query: String): List<SearchResponse> {
         val url = "$mainUrl/search"
         val params = mapOf("q" to query)
 
@@ -167,10 +168,10 @@ class StreamingCommunity : MainAPI() {
         val result = parseJson<InertiaResponse>(response)
 
         return searchResponseBuilder(result.props.titles!!)
-    }
+    }*/
 
-    /*@Prerelease
-    override suspend fun search(query: String, page: Int): List<SearchResponse> {
+
+    override suspend fun search(query: String, page: Int): SearchResponseList {
         val searchUrl = "${mainUrl.replace("/it", "")}/api/search"
         val params = mutableMapOf("q" to query, "lang" to "it")
         if (page > 0) {
@@ -178,16 +179,17 @@ class StreamingCommunity : MainAPI() {
         }
         val response = app.get(searchUrl, params = params, headers = headers).body.string()
         val result = parseJson<it.dogior.hadEnough.SearchResponse>(response)
-        return searchResponseBuilder(result.data)
-    }*/
+        val hasNext = (page < 3) || (page < result.lastPage)
+        return newSearchResponseList(searchResponseBuilder(result.data), hasNext = hasNext)
+    }
 
     private suspend fun getPoster(title: TitleProp): String? {
-        if (title.tmdbId != null){
+        if (title.tmdbId != null) {
             val tmdbUrl = "https://www.themoviedb.org/${title.type}/${title.tmdbId}"
             val resp = app.get(tmdbUrl).document
             val img = resp.select("img.poster.w-full").attr("srcset").split(", ").last()
             return img
-        } else{
+        } else {
             val domain = mainUrl.substringAfter("://").substringBeforeLast("/")
             return title.getBackgroundImageId().let { "https://cdn.$domain/images/$it" }
         }
@@ -221,7 +223,8 @@ class StreamingCommunity : MainAPI() {
                 episodes
             ) {
                 this.posterUrl = poster
-                title.getBackgroundImageId().let { this.backgroundPosterUrl = "https://cdn.$domain/images/$it"}
+                title.getBackgroundImageId()
+                    .let { this.backgroundPosterUrl = "https://cdn.$domain/images/$it" }
                 this.tags = genres
                 this.episodes = episodes
                 this.year = year
@@ -248,7 +251,8 @@ class StreamingCommunity : MainAPI() {
                 dataUrl = "$mainUrl/iframe/${title.id}&canPlayFHD=1"
             ) {
                 this.posterUrl = poster
-                title.getBackgroundImageId().let { this.backgroundPosterUrl = "https://cdn.$domain/images/$it"}
+                title.getBackgroundImageId()
+                    .let { this.backgroundPosterUrl = "https://cdn.$domain/images/$it" }
                 this.tags = genres
                 this.year = year
                 this.plot = title.plot
@@ -333,7 +337,7 @@ class StreamingCommunity : MainAPI() {
 
         VixCloudExtractor().getUrl(
             url = iframeSrc,
-            referer = mainUrl,
+            referer = mainUrl.substringBeforeLast("it"),
             subtitleCallback = subtitleCallback,
             callback = callback
         )
