@@ -40,7 +40,6 @@ class AnimeUnity : MainAPI() {
     override var supportedTypes = setOf(TvType.Anime, TvType.AnimeMovie, TvType.OVA)
     override var lang = "it"
     override val hasMainPage = true
-    override val hasQuickSearch: Boolean = true
 
     companion object {
         @Suppress("ConstPropertyName")
@@ -224,10 +223,6 @@ class AnimeUnity : MainAPI() {
     }
 
 
-    override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
-
-    // This function gets called when you search for something also
-    //This is to get Title,Href,Posters for Homepage
     override suspend fun search(query: String): List<SearchResponse> {
 //        val localTag = "$TAG:search"
         val url = "$mainUrl/archivio/get-animes"
@@ -305,7 +300,8 @@ class AnimeUnity : MainAPI() {
                 url = "$mainUrl/anime/${it.id}-${it.slug}",
                 type = if (it.type == "TV") TvType.Anime
                 else if (it.type == "Movie" || it.episodesCount == 1) TvType.AnimeMovie
-                else TvType.OVA){
+                else TvType.OVA
+            ) {
                 addDubStatus(it.dub == 1 || relatedTitle.contains("(ITA)"))
                 addPoster(poster)
             }
@@ -371,15 +367,13 @@ class AnimeUnity : MainAPI() {
         callback: (ExtractorLink) -> Unit,
     ): Boolean {
 //        val localTag = "$TAG:loadLinks"
-        // Log.d(localTag, "Url : $data")
+//         Log.d(localTag, "Url : $data")
 
         val document = app.get(data).document
 
         val sourceUrl = document.select("video-player").attr("embed_url")
-//        // Log.d(localTag, "Document: $document")
+//         Log.d(localTag, "Document: $document")
 //         Log.d(localTag, "Iframe: $sourceUrl")
-
-
         VixCloudExtractor().getUrl(
             url = sourceUrl,
             referer = mainUrl,
