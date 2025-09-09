@@ -28,6 +28,7 @@ import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import com.lagradost.cloudstream3.utils.AppUtils.parseJson
+import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
@@ -244,11 +245,16 @@ class StreamingCommunity : MainAPI() {
             }
             return tvShow
         } else {
+            val data = LoadData(
+                "$mainUrl/iframe/${title.id}&canPlayFHD=1",
+                "movie",
+                title.tmdbId
+            )
             val movie = newMovieLoadResponse(
                 title.name,
                 actualUrl,
                 TvType.Movie,
-                dataUrl = "$mainUrl/iframe/${title.id}&canPlayFHD=1"
+                dataUrl = data.toJson()
             ) {
                 this.posterUrl = poster
                 title.getBackgroundImageId()
@@ -306,8 +312,14 @@ class StreamingCommunity : MainAPI() {
             }
             responseEpisodes.forEach { ep ->
 
+                val loadData = LoadData(
+                    "$mainUrl/iframe/${title.id}?episode_id=${ep.id}&canPlayFHD=1",
+                    type = "tv",
+                    tmdbId = title.tmdbId,
+                    seasonNumber = season.number,
+                    episodeNumber = ep.number)
                 episodeList.add(
-                    newEpisode("$mainUrl/iframe/${title.id}?episode_id=${ep.id}&canPlayFHD=1") {
+                    newEpisode(loadData.toJson()) {
                         this.name = ep.name
                         this.posterUrl = props.cdnUrl + "/images/" + ep.getCover()
                         this.description = ep.plot
@@ -328,19 +340,32 @@ class StreamingCommunity : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d(TAG, "Url : $data")
+        Log.d(TAG, "Load Data : $data")
         if (data.isEmpty()) return false
+        val loadData = parseJson<LoadData>(data)
 
+        val vixsrcUrl = if(loadData.type == "movie"){
+            "https://vixsrc.to/movie/${loadData.tmdbId}"
+        } else{
+            "https://vixsrc.to/tv/${loadData.tmdbId}/${loadData.seasonNumber}/${loadData.episodeNumber}"
+        }
 
-        val response = app.get(data).document
-        val iframeSrc = response.select("iframe").attr("src")
-
-        VixCloudExtractor().getUrl(
-            url = iframeSrc,
-            referer = mainUrl.substringBeforeLast("it"),
+        VixSrcExtractor().getUrl(
+            url = vixsrcUrl,
+            referer = "https://vixsrc.to/",
             subtitleCallback = subtitleCallback,
             callback = callback
         )
+
+//        val response = app.get(loadData.url).document
+//        val iframeSrc = response.select("iframe").attr("src")
+
+//        VixCloudExtractor().getUrl(
+//            url = iframeSrc,
+//            referer = mainUrl.substringBeforeLast("it"),
+//            subtitleCallback = subtitleCallback,
+//            callback = callback
+//        )
         return true
     }
 }

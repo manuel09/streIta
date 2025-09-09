@@ -3,7 +3,6 @@ package it.dogior.hadEnough
 import android.util.Log
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
-import com.lagradost.cloudstream3.network.CloudflareKiller
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
@@ -11,11 +10,11 @@ import com.lagradost.cloudstream3.utils.newExtractorLink
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.json.JSONObject
 
-class VixCloudExtractor : ExtractorApi() {
-    override val mainUrl = "vixcloud.co"
+class VixSrcExtractor : ExtractorApi() {
+    override val mainUrl = "vixsrc.to"
     override val name = "VixCloud"
     override val requiresReferer = false
-    val  TAG = "VixCloudExtractor"
+    val TAG = "VixSrcExtractor"
     private var referer: String? = null
 
     override suspend fun getUrl(
@@ -31,7 +30,7 @@ class VixCloudExtractor : ExtractorApi() {
 
         callback.invoke(
             newExtractorLink(
-                source = "Vixcloud",
+                source = "VixSrc",
                 name = "Streaming Community",
                 url = playlistUrl,
                 type = ExtractorLinkType.M3U8
@@ -84,11 +83,11 @@ class VixCloudExtractor : ExtractorApi() {
             "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/133.0",
         )
 
-        val iframe = app.get(url, headers = headers, interceptor = CloudflareKiller()).document
-        Log.d(TAG, iframe.toString())
+        val resp = app.get(url, headers = headers).document
+//        Log.d(TAG, resp.toString())
 
 //        Log.d(TAG, iframe.document.toString())
-        val scripts = iframe.select("script")
+        val scripts = resp.select("script")
         val script =
             scripts.find { it.data().contains("masterPlaylist") }!!.data().replace("\n", "\t")
 
