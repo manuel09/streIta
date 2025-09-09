@@ -344,6 +344,16 @@ class StreamingCommunity : MainAPI() {
         if (data.isEmpty()) return false
         val loadData = parseJson<LoadData>(data)
 
+        val response = app.get(loadData.url).document
+        val iframeSrc = response.select("iframe").attr("src")
+
+        VixCloudExtractor().getUrl(
+            url = iframeSrc,
+            referer = mainUrl.substringBeforeLast("it"),
+            subtitleCallback = subtitleCallback,
+            callback = callback
+        )
+
         val vixsrcUrl = if(loadData.type == "movie"){
             "https://vixsrc.to/movie/${loadData.tmdbId}"
         } else{
@@ -357,15 +367,6 @@ class StreamingCommunity : MainAPI() {
             callback = callback
         )
 
-//        val response = app.get(loadData.url).document
-//        val iframeSrc = response.select("iframe").attr("src")
-
-//        VixCloudExtractor().getUrl(
-//            url = iframeSrc,
-//            referer = mainUrl.substringBeforeLast("it"),
-//            subtitleCallback = subtitleCallback,
-//            callback = callback
-//        )
         return true
     }
 }

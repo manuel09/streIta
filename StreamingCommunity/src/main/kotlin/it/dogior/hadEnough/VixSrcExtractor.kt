@@ -31,7 +31,7 @@ class VixSrcExtractor : ExtractorApi() {
         callback.invoke(
             newExtractorLink(
                 source = "VixSrc",
-                name = "Streaming Community",
+                name = "Streaming Community - VixSrc",
                 url = playlistUrl,
                 type = ExtractorLinkType.M3U8
             ) {

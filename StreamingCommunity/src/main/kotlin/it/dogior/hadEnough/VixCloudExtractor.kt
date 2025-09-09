@@ -8,15 +8,20 @@ import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.newExtractorLink
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.json.JSONObject
 
 class VixCloudExtractor : ExtractorApi() {
     override val mainUrl = "vixcloud.co"
     override val name = "VixCloud"
     override val requiresReferer = false
-    val  TAG = "VixCloudExtractor"
+    val TAG = "VixCloudExtractor"
     private var referer: String? = null
+    private val h = mutableMapOf(
+        "Accept" to "*/*",
+        "Connection" to "keep-alive",
+        "Cache-Control" to "no-cache",
+        "user-agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0",
+    )
 
     override suspend fun getUrl(
         url: String,
@@ -31,12 +36,12 @@ class VixCloudExtractor : ExtractorApi() {
 
         callback.invoke(
             newExtractorLink(
-                source = "Vixcloud",
-                name = "Streaming Community",
+                source = "VixCloud",
+                name = "Streaming Community - VixCloud",
                 url = playlistUrl,
                 type = ExtractorLinkType.M3U8
             ) {
-                this.referer = referer!!
+                this.headers = h
             }
         )
 
@@ -72,19 +77,8 @@ class VixCloudExtractor : ExtractorApi() {
 
     private suspend fun getScript(url: String): JSONObject {
         Log.d(TAG, "Item url: $url")
-        val headers = mutableMapOf(
-            "Accept" to "*/*",
-            "Alt-Used" to url.toHttpUrl().host,
-            "Connection" to "keep-alive",
-            "Host" to url.toHttpUrl().host,
-            "Referer" to referer!!,
-            "Sec-Fetch-Dest" to "iframe",
-            "Sec-Fetch-Mode" to "navigate",
-            "Sec-Fetch-Site" to "cross-site",
-            "User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/133.0",
-        )
 
-        val iframe = app.get(url, headers = headers, interceptor = CloudflareKiller()).document
+        val iframe = app.get(url, headers = h, interceptor = CloudflareKiller()).document
         Log.d(TAG, iframe.toString())
 
 //        Log.d(TAG, iframe.document.toString())
