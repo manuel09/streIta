@@ -19,7 +19,6 @@ include(
     "SimklProvider",
     "StreamingCommunity",
     "TV",
-//    "ToonItalia",
     "Torrentio"
 //    "YouTube"
 )
