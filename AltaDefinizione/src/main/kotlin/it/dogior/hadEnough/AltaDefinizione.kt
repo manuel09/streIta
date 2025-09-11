@@ -90,29 +90,13 @@ class AltaDefinizione : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val requestBody = formRequestBody(query)
-        val doc = app.post(
-            "$mainUrl/",
-            requestBody = requestBody,
-            headers = mapOf(
-                "Content-Type" to "application/x-www-form-urlencoded",
-                "Content-Length" to requestBody.contentLength().toString()
-            )
-        ).document
+        val doc = app.get("$mainUrl/?story=$query&do=search&subaction=search").document
+        val container = doc.select("#dle-content > .col-lg-3")
 
-        return doc.select("div.movie").mapNotNull {
+        return container.select("div.box").mapNotNull {
             it.toSearchResponse()
         }
     }
-
-    private fun formRequestBody(query: String): FormBody {
-        return FormBody.Builder()
-            .addEncoded("story", query)
-            .addEncoded("do", "search")
-            .addEncoded("subaction", "search")
-            .build()
-    }
-
 
     override suspend fun load(url: String): LoadResponse? {
         val doc = app.get(url).document
@@ -201,9 +185,4 @@ class AltaDefinizione : MainAPI() {
         }
         return false
     }
-
-//    data class VideoStream(
-//        val host: String,
-//        val url: String
-//    )
 }
