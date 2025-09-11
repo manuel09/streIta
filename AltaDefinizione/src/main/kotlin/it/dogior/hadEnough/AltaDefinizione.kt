@@ -20,6 +20,7 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addRating
 import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.loadExtractor
 import it.dogior.hadEnough.extractors.DroploadExtractor
+import it.dogior.hadEnough.extractors.MySupervideoExtractor
 import okhttp3.FormBody
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -188,13 +189,14 @@ class AltaDefinizione : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit,
     ): Boolean {
-//        Log.d("Altadefinizione", data)
+        Log.d("Altadefinizione", "Links: $data")
         val links = parseJson<List<String>>(data)
         links.map {
             if (it.contains("dropload.tv")) {
                 DroploadExtractor().getUrl(it, null, subtitleCallback, callback)
             } else {
-                loadExtractor(it, null, subtitleCallback, callback)
+                MySupervideoExtractor().getUrl(it, null, subtitleCallback, callback)
+//                loadExtractor(it, null, subtitleCallback, callback)
             }
         }
         return false
