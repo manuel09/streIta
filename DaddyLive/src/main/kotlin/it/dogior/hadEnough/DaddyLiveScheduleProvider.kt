@@ -104,6 +104,7 @@ class DaddyLiveScheduleProvider : MainAPI() {
                 }
                 if (event != null) {
                     val searchResponses = event.map {
+                        Log.d("BANANA", it.toJson())
                         it.date = convertStringToLocalDate(date)
                         eventToSearchResponse(it)
                     }.toMutableList()
@@ -207,8 +208,7 @@ class DaddyLiveScheduleProvider : MainAPI() {
 //        }
     }
     private fun eventToSearchResponse(event: Event): LiveSearchResponse {
-        val title = event.date?.let { it + " " + convertGMTToLocalTime(event.time) + " - " + name }
-            ?: (convertGMTToLocalTime(event.time) + " - " + name)
+        val title = convertGMTToLocalTime(event.time) + " - " + event.name
 
         return newLiveSearchResponse(title, event.toJson(), TvType.Live){
             posterUrl = Companion.posterUrl
