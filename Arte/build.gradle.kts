@@ -1,11 +1,11 @@
 // use an integer for version numbers
-version = 1
+version = 2
 
 
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-    description = "Documentaries from arte.tv. Other languages will be implemented soon"
+    description = "Magazine shows, concerts, documentaries, and more: the European culture channel's programmes available to stream free of charge on arte.tv"
     authors = listOf("doGior")
 
     /**
@@ -15,12 +15,23 @@ cloudstream {
     * 2: Slow
     * 3: Beta only
     * */
-    status = 0
+    status = 1
 
     tvTypes = listOf("Documentary")
 
-    requiresResources = false
-    language = "it"
+    requiresResources = true
+    language = "eu"
 
     iconUrl = "https://static-cdn.arte.tv/replay/favicons/favicon-194x194.png"
+}
+
+android {
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation("com.google.android.material:material:1.13.0")
 }
