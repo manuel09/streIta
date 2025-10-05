@@ -1,5 +1,5 @@
 // use an integer for version numbers
-version = 5
+version = 6
 
 
 cloudstream {
@@ -21,5 +21,5 @@ cloudstream {
         "Live",
     )
 
-    iconUrl = "https://direttecommunity.gratis/templates/calciostreaming1/images/icons/apple-touch-icon.png"
+    iconUrl = "https://live.direttecommunity.online/templates/calciostreaming1/images/icons/apple-touch-icon.png"
 }
