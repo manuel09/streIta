@@ -7,11 +7,12 @@ import com.lagradost.cloudstream3.utils.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
 import okhttp3.Response
-import org.jsoup.nodes.Document
+import org.json.JSONObject
+import kotlin.io.encoding.Base64
 
 class CalcioStreaming : MainAPI() {
     override var lang = "it"
-    override var mainUrl = "https://onl.direttecommunity.online/"
+    override var mainUrl = "https://fig.direttecommunity.online/"
     override var name = "CalcioStreaming"
     override val hasMainPage = true
     override val hasChromecastSupport = true
@@ -65,24 +66,66 @@ class CalcioStreaming : MainAPI() {
         }
     }
 
-    private fun getStreamUrl(document: Document): String? {
-        val script = document.body().select("script[type=\"module\"]").first()?.data() ?: return null
-        val sourceRegex = "(?<=src ?= ?\")([^\"]+)".toRegex()
-        val url = sourceRegex.find(script)?.value
+    fun getStreamUrl(html: String): String? {
+        val configMatch = Regex("""window\._econfig\s*=\s*['"]([^'"]+)['"]""").find(html)
+            ?: return null
 
-        return url
+        return try {
+            val encodedConfig = configMatch.groupValues[1]
+            val decodedConfig =
+                Base64.decode(encodedConfig + "=".repeat((-encodedConfig.length % 4 + 4) % 4))
+                    .toString(Charsets.ISO_8859_1)
+
+            val partOrder = listOf(2, 0, 3, 1)
+            val partLength = (decodedConfig.length + 3) / 4
+            val encodedParts = mutableListOf<String>()
+            var offset = 0
+
+            repeat(4) {
+                val part = decodedConfig.substring(
+                    offset,
+                    minOf(offset + partLength, decodedConfig.length)
+                )
+                offset += partLength
+                encodedParts.add(part.take(3) + part.drop(4))
+            }
+
+            val decodedParts = Array(4) { "" }
+            encodedParts.forEachIndexed { index, part ->
+                val padded = part + "=".repeat((-part.length % 4 + 4) % 4)
+                decodedParts[partOrder[index]] = Base64.decode(padded)
+                    .toString(Charsets.ISO_8859_1)
+            }
+
+            val joinedConfig = decodedParts.joinToString("")
+            val configJson = Base64
+                .decode(joinedConfig + "=".repeat((-joinedConfig.length % 4 + 4) % 4))
+                .toString(Charsets.UTF_8)
+
+            val config = JSONObject(configJson)
+            config.optString("stream_url_nop2p").ifEmpty { null }
+                ?: config.optString("stream_url").ifEmpty { null }
+        } catch (_: Exception) {
+            null
+        }
     }
 
-    private suspend fun extractVideoStream(url: String, ref: String, n: Int): Pair<String, String>? {
+    private suspend fun extractVideoStream(
+        url: String,
+        ref: String,
+        n: Int
+    ): Pair<String, String>? {
         if (url.toHttpUrlOrNull() == null) return null
         if (n > 10) return null
 
         val doc = app.get(url).document
         val link = doc.selectFirst("iframe")?.attr("src") ?: return null
-        val newPage = app.get(fixUrl(link), referer = ref, headers = mapOf(
-            "Sec-Fetch-Dest" to "iframe"
-        )).document
-        val streamUrl = getStreamUrl(newPage)
+        val newPage = app.get(
+            fixUrl(link), referer = ref, headers = mapOf(
+                "Sec-Fetch-Dest" to "iframe"
+            )
+        ).document
+        val streamUrl = getStreamUrl(newPage.toString())
         return if (newPage.select("script").size >= 6 && !streamUrl.isNullOrEmpty()) {
             streamUrl to fixUrl(link)
         } else {
