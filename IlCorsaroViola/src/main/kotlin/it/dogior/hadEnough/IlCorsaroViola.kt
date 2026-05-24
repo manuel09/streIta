@@ -36,6 +36,7 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import com.lagradost.cloudstream3.utils.getPreference
 
 class IlCorsaroViola : TmdbProvider() {
     override var mainUrl = "https://db.corsaroviola.dpdns.org"
@@ -45,6 +46,9 @@ class IlCorsaroViola : TmdbProvider() {
     override val hasMainPage = true
     private val tmdbAPI = "https://api.themoviedb.org/3"
     private val TRACKER_LIST_URL = "https://newtrackon.com/api/stable"
+    private fun getTorBoxApiKey(): String? {
+    return getPreference("torbox_api_key")
+}
 
     private val apiKey = BuildConfig.TMDB_API
     private val authHeaders =
