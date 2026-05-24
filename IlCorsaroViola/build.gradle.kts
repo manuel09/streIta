@@ -39,6 +39,7 @@ android {
         buildConfigField("String", "TMDB_API", "\"${properties.getProperty("TMDB_API")}\"")
         buildConfigField("String", "SIMKL_CLIENT_ID", "\"${properties.getProperty("SIMKL_CLIENT_ID")}\"")
         buildConfigField("String", "ILCORSAROVIOLAVERCEL", "\"${properties.getProperty("ILCORSAROVIOLAVERCEL")}\"")
+        buildConfigField("String", "TORBOX_API", "\"${properties.getProperty("TORBOX_API")}\"")
 
     }
 }
