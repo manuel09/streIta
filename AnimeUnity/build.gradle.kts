@@ -32,7 +32,7 @@ val buildCommitSha = resolveBuildCommitSha()
 val buildCompletedAtRome = resolveBuildCompletedAtRome()
 
 // use an integer for version numbers
-version = 24
+version = 25
 
 
 cloudstream {
@@ -67,6 +67,7 @@ android {
     }
 
     defaultConfig {
+        minSdk = 24
         buildConfigField("String", "BUILD_COMMIT_SHA", escapeBuildConfigString(buildCommitSha))
         buildConfigField(
             "String",

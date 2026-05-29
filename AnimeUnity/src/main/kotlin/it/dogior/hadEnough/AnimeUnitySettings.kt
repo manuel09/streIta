@@ -21,7 +21,6 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -31,9 +30,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.CommonActivity.showToast
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 private data class SpinnerItem<T>(
     val label: String,
@@ -299,9 +295,6 @@ class AnimeUnitySettings : AnimeUnityBaseSettingsFragment() {
         sharedPref?.edit {
             clear()
         }
-        context?.applicationContext?.let { appContext ->
-            AnimeUnityCache.init(appContext, sharedPref)
-        }
 
         siteUrlInput?.error = null
         siteUrlInput?.setText(AnimeUnityPlugin.DEFAULT_SITE_URL)
@@ -336,12 +329,6 @@ class AnimeUnitySettings : AnimeUnityBaseSettingsFragment() {
             getString("settings_menu_display_summary")
         view.findViewByName<TextView>("display_settings_action")?.text =
             getString("settings_open_action")
-        view.findViewByName<TextView>("cache_settings_title")?.text =
-            getString("settings_menu_cache_title")
-        view.findViewByName<TextView>("cache_settings_summary")?.text =
-            getString("settings_menu_cache_summary")
-        view.findViewByName<TextView>("cache_settings_action")?.text =
-            getString("settings_open_action")
         view.findViewByName<TextView>("advanced_search_settings_title")?.text =
             getString("settings_menu_advanced_search_title")
         view.findViewByName<TextView>("advanced_search_settings_summary")?.text =
@@ -354,7 +341,6 @@ class AnimeUnitySettings : AnimeUnityBaseSettingsFragment() {
 
         val homeSettingsCard: View? = view.findViewByName("home_settings_card")
         val displaySettingsCard: View? = view.findViewByName("display_settings_card")
-        val cacheSettingsCard: View? = view.findViewByName("cache_settings_card")
         val advancedSearchSettingsCard: View? = view.findViewByName("advanced_search_settings_card")
         val advancedSearchSwitch: Switch? = view.findViewByName("advanced_search_settings_switch")
         val siteUrlContainer: View? = view.findViewByName("site_url_container")
@@ -364,7 +350,7 @@ class AnimeUnitySettings : AnimeUnityBaseSettingsFragment() {
         val resetSettingsButton: TextView? = view.findViewByName("reset_settings_btn")
         val advancedSearchActionEnabledColor = advancedSearchAction?.currentTextColor ?: Color.WHITE
 
-        listOf(homeSettingsCard, displaySettingsCard, cacheSettingsCard, advancedSearchSettingsCard).forEach { card ->
+        listOf(homeSettingsCard, displaySettingsCard, advancedSearchSettingsCard).forEach { card ->
             card?.makeTvCompatible()
         }
         siteUrlContainer?.applyOutlineBackground()
@@ -474,13 +460,6 @@ class AnimeUnitySettings : AnimeUnityBaseSettingsFragment() {
             )
         }
 
-        cacheSettingsCard?.setOnClickListener {
-            AnimeUnityCacheSettingsFragment().show(
-                parentFragmentManager,
-                "AnimeUnityCacheSettings"
-            )
-        }
-
         advancedSearchSettingsCard?.setOnClickListener {
             if (advancedSearchSwitch?.isChecked == true) {
                 AnimeUnityAdvancedSearchSettingsFragment().show(
@@ -515,28 +494,18 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
         )
     }
 
-    private fun getDefaultCount(prefKey: String): Int {
-        return if (prefKey == AnimeUnityPlugin.PREF_RANDOM_COUNT) {
-            AnimeUnityPlugin.DEFAULT_RANDOM_COUNT
-        } else {
-            AnimeUnityPlugin.DEFAULT_SECTION_COUNT
-        }
-    }
-
     private fun getCount(prefKey: String): Int {
-        val defaultCount = getDefaultCount(prefKey)
-        return (sharedPref?.getInt(prefKey, defaultCount)
-            ?: defaultCount).coerceIn(1, AnimeUnityPlugin.MAX_SECTION_COUNT)
+        return (sharedPref?.getInt(prefKey, AnimeUnityPlugin.DEFAULT_SECTION_COUNT)
+            ?: AnimeUnityPlugin.DEFAULT_SECTION_COUNT).coerceIn(1, AnimeUnityPlugin.MAX_SECTION_COUNT)
     }
 
-    private fun parseCount(input: EditText?, prefKey: String): Int {
-        val defaultCount = getDefaultCount(prefKey)
+    private fun parseCount(input: EditText?): Int {
         return input?.text
             ?.toString()
             ?.trim()
             ?.toIntOrNull()
             ?.coerceIn(1, AnimeUnityPlugin.MAX_SECTION_COUNT)
-            ?: defaultCount
+            ?: AnimeUnityPlugin.DEFAULT_SECTION_COUNT
     }
 
     private fun setupCountInput(input: EditText?, prefKey: String) {
@@ -616,7 +585,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
 
         val sectionRows = listOf(
             SectionRow(
-                key = AnimeUnitySections.LATEST,
+                key = "latest",
                 rowId = "latest_row",
                 labelStringName = "latest_count_label",
                 titlePrefKey = AnimeUnityPlugin.PREF_LATEST_TITLE,
@@ -624,7 +593,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                 countPrefKey = AnimeUnityPlugin.PREF_LATEST_COUNT,
             ),
             SectionRow(
-                key = AnimeUnitySections.CALENDAR,
+                key = "calendar",
                 rowId = "calendar_row",
                 labelStringName = "calendar_switch_text",
                 titlePrefKey = AnimeUnityPlugin.PREF_CALENDAR_TITLE,
@@ -632,7 +601,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                 countPrefKey = AnimeUnityPlugin.PREF_CALENDAR_COUNT,
             ),
             SectionRow(
-                key = AnimeUnitySections.ONGOING,
+                key = "ongoing",
                 rowId = "ongoing_row",
                 labelStringName = "ongoing_count_label",
                 titlePrefKey = AnimeUnityPlugin.PREF_ONGOING_TITLE,
@@ -640,7 +609,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                 countPrefKey = AnimeUnityPlugin.PREF_ONGOING_COUNT,
             ),
             SectionRow(
-                key = AnimeUnitySections.POPULAR,
+                key = "popular",
                 rowId = "popular_row",
                 labelStringName = "popular_count_label",
                 titlePrefKey = AnimeUnityPlugin.PREF_POPULAR_TITLE,
@@ -648,7 +617,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                 countPrefKey = AnimeUnityPlugin.PREF_POPULAR_COUNT,
             ),
             SectionRow(
-                key = AnimeUnitySections.BEST,
+                key = "best",
                 rowId = "best_row",
                 labelStringName = "best_count_label",
                 titlePrefKey = AnimeUnityPlugin.PREF_BEST_TITLE,
@@ -656,7 +625,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                 countPrefKey = AnimeUnityPlugin.PREF_BEST_COUNT,
             ),
             SectionRow(
-                key = AnimeUnitySections.UPCOMING,
+                key = "upcoming",
                 rowId = "upcoming_row",
                 labelStringName = "upcoming_count_label",
                 titlePrefKey = AnimeUnityPlugin.PREF_UPCOMING_TITLE,
@@ -664,7 +633,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                 countPrefKey = AnimeUnityPlugin.PREF_UPCOMING_COUNT,
             ),
             SectionRow(
-                key = AnimeUnitySections.RANDOM,
+                key = "random",
                 rowId = "random_row",
                 labelStringName = "random_count_label",
                 titlePrefKey = AnimeUnityPlugin.PREF_RANDOM_TITLE,
@@ -743,7 +712,7 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                     sectionRow.countPrefKey?.let { prefKey ->
                         putInt(
                             prefKey,
-                            parseCount(rowView.findViewByName("row_count_input"), prefKey)
+                            parseCount(rowView.findViewByName("row_count_input"))
                         )
                     }
 
@@ -762,230 +731,6 @@ class AnimeUnityHomeSettingsFragment : AnimeUnityBaseSettingsFragment() {
                     ?: "Impostazioni salvate. Riavvia l'applicazione per applicarle"
             )
             dismiss()
-        }
-    }
-}
-
-class AnimeUnityCacheSettingsFragment : AnimeUnityBaseSettingsFragment() {
-
-    override val layoutName: String = "settings_cache"
-
-    companion object {
-        private const val CACHE_ENTRY_KEY_PREVIEW_LENGTH = 120
-    }
-
-    private fun formatBytes(bytes: Long): String {
-        val mb = bytes / (1024.0 * 1024.0)
-        return String.format(java.util.Locale.ITALY, "%.1f MB", mb)
-    }
-
-    private fun formatTimestamp(timestampMs: Long): String {
-        if (timestampMs <= 0L) return "-"
-        return SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY).format(Date(timestampMs))
-    }
-
-    private fun String.shortCacheKey(): String {
-        return if (length <= CACHE_ENTRY_KEY_PREVIEW_LENGTH) {
-            this
-        } else {
-            take(CACHE_ENTRY_KEY_PREVIEW_LENGTH) + "..."
-        }
-    }
-
-    private fun EditText?.readCacheInt(defaultValue: Int, minValue: Int, maxValue: Int): Int {
-        return this?.text
-            ?.toString()
-            ?.trim()
-            ?.toIntOrNull()
-            ?.coerceIn(minValue, maxValue)
-            ?: defaultValue
-    }
-
-    private fun updateStats(view: View) {
-        AnimeUnityCache.init(view.context.applicationContext, sharedPref)
-        val stats = AnimeUnityCache.stats()
-        view.findViewByName<TextView>("cache_stats_summary")?.text =
-            (getString("settings_cache_stats_summary")
-                ?: "%1\$d elementi | %2\$d schede anime | %3\$d pagine anime | %4\$d scaduti | %5\$s").format(
-                stats.entryCount,
-                stats.detailEntryCount,
-                stats.animePageEntryCount,
-                stats.expiredEntryCount,
-                formatBytes(stats.totalBytes),
-            )
-    }
-
-    private fun updateSettingsValues(view: View) {
-        view.findViewByName<EditText>("cache_max_entries_input")?.setText(
-            AnimeUnityPlugin.getCacheMaxEntries(sharedPref).toString()
-        )
-        view.findViewByName<EditText>("cache_max_size_input")?.setText(
-            AnimeUnityPlugin.getCacheMaxSizeMb(sharedPref).toString()
-        )
-    }
-
-    private fun saveCacheLimits(view: View) {
-        val context = context ?: return
-        val maxEntries = view.findViewByName<EditText>("cache_max_entries_input").readCacheInt(
-            defaultValue = AnimeUnityPlugin.DEFAULT_CACHE_MAX_ENTRIES,
-            minValue = AnimeUnityPlugin.MIN_CACHE_MAX_ENTRIES,
-            maxValue = AnimeUnityPlugin.MAX_CACHE_MAX_ENTRIES,
-        )
-        val maxSizeMb = view.findViewByName<EditText>("cache_max_size_input").readCacheInt(
-            defaultValue = AnimeUnityPlugin.DEFAULT_CACHE_MAX_SIZE_MB,
-            minValue = AnimeUnityPlugin.MIN_CACHE_MAX_SIZE_MB,
-            maxValue = AnimeUnityPlugin.MAX_CACHE_MAX_SIZE_MB,
-        )
-
-        sharedPref?.edit {
-            putInt(AnimeUnityPlugin.PREF_CACHE_MAX_ENTRIES, maxEntries)
-            putInt(AnimeUnityPlugin.PREF_CACHE_MAX_SIZE_MB, maxSizeMb)
-        }
-
-        AnimeUnityCache.init(context.applicationContext, sharedPref)
-        updateSettingsValues(view)
-        updateStats(view)
-        showToast(getString("settings_cache_saved") ?: "Impostazioni cache salvate")
-    }
-
-    private fun cacheEntryLabel(entry: AnimeUnityCache.CacheEntrySnapshot): String {
-        val status = if (entry.isExpired) "scaduta" else "valida"
-        return buildString {
-            append(entry.namespace.ifBlank { "unknown" })
-            append(" | ")
-            append(formatBytes(entry.sizeBytes))
-            append(" | ")
-            append(status)
-            append("\n")
-            append(entry.key.shortCacheKey())
-        }
-    }
-
-    private fun cacheEntryDetail(entry: AnimeUnityCache.CacheEntrySnapshot): String {
-        val expiresAt = if (entry.expiresAtMs > 0L) formatTimestamp(entry.expiresAtMs) else "Mai"
-        return buildString {
-            appendLine("Namespace: ${entry.namespace}")
-            appendLine("File: ${entry.fileName}")
-            appendLine("Dimensione: ${formatBytes(entry.sizeBytes)} (${entry.sizeBytes} byte)")
-            appendLine("Creata: ${formatTimestamp(entry.createdAtMs)}")
-            appendLine("Aggiornata: ${formatTimestamp(entry.updatedAtMs)}")
-            appendLine("Ultimo accesso: ${formatTimestamp(entry.lastAccessedAtMs)}")
-            appendLine("Scadenza: $expiresAt")
-            appendLine("Scaduta: ${if (entry.isExpired) "si" else "no"}")
-            appendLine("Priorita: ${entry.priority}")
-            appendLine("Pinned: ${if (entry.pinned) "si" else "no"}")
-            appendLine()
-            appendLine("Key:")
-            appendLine(entry.key)
-            appendLine()
-            appendLine("Payload:")
-            append(entry.payload)
-        }
-    }
-
-    private fun showCacheEntryDetail(entry: AnimeUnityCache.CacheEntrySnapshot) {
-        val context = context ?: return
-        val detailText = TextView(context).apply {
-            text = cacheEntryDetail(entry)
-            textSize = 12f
-            setTextIsSelectable(true)
-            setPadding(24, 18, 24, 18)
-        }
-        val scrollView = ScrollView(context).apply {
-            addView(detailText)
-        }
-
-        AlertDialog.Builder(context)
-            .setTitle(getString("settings_cache_entry_detail_title") ?: "Dettaglio cache")
-            .setView(scrollView)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
-    }
-
-    private fun showCacheEntries(view: View) {
-        val context = context ?: return
-        AnimeUnityCache.init(context.applicationContext, sharedPref)
-        val entries = AnimeUnityCache.entries()
-
-        if (entries.isEmpty()) {
-            AlertDialog.Builder(context)
-                .setTitle(getString("settings_cache_entries_title") ?: "Elementi cache")
-                .setMessage(getString("settings_cache_entries_empty") ?: "Nessun elemento salvato in cache.")
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
-            updateStats(view)
-            return
-        }
-
-        AlertDialog.Builder(context)
-            .setTitle(
-                "${getString("settings_cache_entries_title") ?: "Elementi cache"} (${entries.size})"
-            )
-            .setItems(entries.map(::cacheEntryLabel).toTypedArray()) { _, which ->
-                showCacheEntryDetail(entries[which])
-            }
-            .setNegativeButton(getString("settings_reset_cancel") ?: "Annulla", null)
-            .show()
-        updateStats(view)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        view.findViewByName<TextView>("header_tw")?.text =
-            getString("settings_cache_title")
-        setupSaveButton(view) {
-            saveCacheLimits(view)
-        }
-        view.findViewByName<View>("cache_stats_card")?.applyOutlineBackground()
-        view.findViewByName<View>("cache_limits_card")?.applyOutlineBackground()
-        view.findViewByName<TextView>("cache_stats_title")?.text =
-            getString("settings_cache_stats_title")
-        view.findViewByName<TextView>("cache_limits_title")?.text =
-            getString("settings_cache_limits_title")
-        view.findViewByName<TextView>("cache_max_entries_label")?.text =
-            getString("settings_cache_max_entries_label")
-        view.findViewByName<TextView>("cache_max_size_label")?.text =
-            getString("settings_cache_max_size_label")
-        view.findViewByName<EditText>("cache_max_entries_input")?.filters =
-            arrayOf(InputFilter.LengthFilter(5))
-        view.findViewByName<EditText>("cache_max_size_input")?.filters =
-            arrayOf(InputFilter.LengthFilter(4))
-
-        val clearCacheButton: TextView? = view.findViewByName("clear_cache_btn")
-        val viewCacheEntriesButton: TextView? = view.findViewByName("view_cache_entries_btn")
-        viewCacheEntriesButton?.apply {
-            makeTvCompatible()
-            text = getString("settings_cache_view_entries_button")
-        }
-        clearCacheButton?.apply {
-            makeTvCompatible()
-            background = getDrawable("outline_danger")
-            setTextColor(Color.parseColor("#FFFF7F7F"))
-            text = getString("settings_cache_clear_button")
-        }
-        updateSettingsValues(view)
-        updateStats(view)
-
-        viewCacheEntriesButton?.setOnClickListener {
-            showCacheEntries(view)
-        }
-
-        clearCacheButton?.setOnClickListener {
-            val context = context ?: return@setOnClickListener
-            AlertDialog.Builder(context)
-                .setTitle(getString("settings_cache_clear_title") ?: "Svuota cache")
-                .setMessage(
-                    getString("settings_cache_clear_message")
-                        ?: "Vuoi eliminare i dati salvati di AnimeUnity?"
-                )
-                .setPositiveButton(getString("settings_cache_clear_confirm") ?: "Svuota") { _, _ ->
-                    AnimeUnity.clearAllCaches()
-                    updateStats(view)
-                    showToast(getString("settings_cache_cleared") ?: "Cache svuotata")
-                }
-                .setNegativeButton(getString("settings_reset_cancel") ?: "Annulla", null)
-                .show()
         }
     }
 }

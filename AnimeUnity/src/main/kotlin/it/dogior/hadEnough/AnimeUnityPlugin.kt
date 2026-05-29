@@ -61,10 +61,9 @@ class AnimeUnityPlugin : Plugin() {
 
         const val DEFAULT_SITE_URL = "https://www.animeunity.so/"
         const val DEFAULT_SECTION_COUNT = 30
-        const val DEFAULT_RANDOM_COUNT = 10
         const val MAX_SECTION_COUNT = 100
         const val DEFAULT_ADVANCED_SEARCH_COUNT = MAX_SECTION_COUNT
-        const val DEFAULT_SECTION_ORDER = AnimeUnitySections.DEFAULT_ORDER
+        const val DEFAULT_SECTION_ORDER = "latest,calendar,random,ongoing,popular,best,upcoming"
         const val DEFAULT_UNIFY_DUB_SUB_CARDS = true
         const val DEFAULT_CACHE_MAX_ENTRIES = 1000
         const val MIN_CACHE_MAX_ENTRIES = 50
@@ -73,8 +72,16 @@ class AnimeUnityPlugin : Plugin() {
         const val MIN_CACHE_MAX_SIZE_MB = 16
         const val MAX_CACHE_MAX_SIZE_MB = 2048
         private const val ARCHIVE_OLDEST_YEAR = 1966
-        private val defaultSectionKeys = AnimeUnitySections.defaultOrderKeys
-        private val validSectionKeys = AnimeUnitySections.validKeys
+        private val defaultSectionKeys = DEFAULT_SECTION_ORDER.split(",")
+        private val validSectionKeys = listOf(
+            "latest",
+            "calendar",
+            "ongoing",
+            "popular",
+            "best",
+            "upcoming",
+            "random"
+        )
 
         private val siteSchemeRegex = Regex("""(?i)^https?://""")
         private val validSiteHostRegex = Regex(
@@ -335,7 +342,6 @@ class AnimeUnityPlugin : Plugin() {
 
     override fun load(context: Context) {
         sharedPref = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        AnimeUnityCache.init(context.applicationContext, sharedPref)
         activePlugin = this
         activeSharedPref = sharedPref
 
