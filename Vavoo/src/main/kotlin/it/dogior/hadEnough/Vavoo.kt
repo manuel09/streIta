@@ -271,7 +271,10 @@ class Vavoo(
         }
         val logo = cachedChannel?.logo
         return newLiveStreamLoadResponse(channel.name, url, channel.url) {
-            this.posterUrl = if (logo.isNullOrEmpty()) Companion.posterUrl else fixUrl(logo)
+            this.posterUrl = Companion.posterUrl
+            logo?.let {
+                this.logoUrl = fixUrl(it)
+            }
         }
     }
 
@@ -285,7 +288,7 @@ class Vavoo(
             newExtractorLink(
                 this.name,
                 this.name,
-                data,
+                data.replace("https://", "http://"),
                 type = ExtractorLinkType.M3U8
             ) {
                 this.referer = mainUrl
@@ -294,17 +297,6 @@ class Vavoo(
         )
         return true
     }
-
-//    override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
-//        return object : Interceptor {
-//            override fun intercept(chain: Interceptor.Chain): Response {
-//                val request = chain.request()
-//                val response = chain.proceed(request)
-//                Log.d("Vavoo Interceptor", response.peekBody(1024).string())
-//                return response
-//            }
-//        }
-//    }
 
     fun channelToSearchResponse(channel: Channel): LiveSearchResponse {
         val cachedChannel = channelsMetadata.firstOrNull{
