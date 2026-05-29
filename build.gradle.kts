@@ -1,21 +1,22 @@
+import com.android.build.api.dsl.LibraryExtension
 import com.lagradost.cloudstream3.gradle.CloudstreamExtension
-import com.android.build.gradle.LibraryExtension
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 buildscript {
     repositories {
         google()
         mavenCentral()
-        // Shitpack repo which contains our tools and dependencies
         maven("https://jitpack.io")
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.13.0")
-        // Cloudstream gradle plugin which makes everything work and builds plugins
+        classpath("com.android.tools.build:gradle:9.1.1")
         classpath("com.github.recloudstream:gradle:master-SNAPSHOT")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.21")
     }
 }
 
@@ -27,6 +28,13 @@ allprojects {
     }
 }
 
+subprojects {
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.add("-Xannotation-default-target=param-property")
+        }
+    }
+}
 
 fun Project.cloudstream(configuration: CloudstreamExtension.() -> Unit) = extensions.getByName<CloudstreamExtension>("cloudstream").configuration()
 
@@ -38,7 +46,7 @@ fun Project.android(configuration: LibraryExtension.() -> Unit) {
 
 subprojects {
     apply(plugin = "com.android.library")
-    apply(plugin = "kotlin-android")
+//    apply(plugin = "kotlin-android")
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
     cloudstream {
