@@ -270,9 +270,9 @@ class Vavoo(
         val logo = cachedChannel?.logo
         return newLiveStreamLoadResponse(channel.name, url, channel.url) {
             this.posterUrl = Companion.posterUrl
-            logo?.let {
-                this.logoUrl = fixUrl(it)
-            }
+//            logo?.let {
+//                this.logoUrl = fixUrl(it)
+//            }
         }
     }
 
