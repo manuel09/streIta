@@ -226,9 +226,7 @@ class Vavoo(
     }
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        ioSafe {
-            setCatalog2()
-        }
+        setCatalog2()
         val items = getCatalog(request.data, page = page)
         val searchResponses = items.first.map { channelToSearchResponse(it) }
         return newHomePageResponse(
