@@ -3,18 +3,27 @@ package it.dogior.hadEnough
 import com.lagradost.cloudstream3.app
 
 object TorBoxHelper {
+    // Ora legge direttamente dalla configurazione di build
+    private val TEST_API_KEY = BuildConfig.TORBOX_API
 
-    // Funzione per verificare se l'hash è in cache
-    suspend fun isCached(hash: String, apiKey: String): Boolean {
+    suspend fun isCached(hash: String): Boolean {
         val url = "https://api.torbox.app/v1/api/torrents/checkcached"
-        
         val response = app.post(
             url,
-            headers = mapOf("Authorization" to "Bearer $apiKey"),
-            data = mapOf("hash" to hash)
+            headers = mapOf("Authorization" to "Bearer $TEST_API_KEY"),
+                                data = mapOf("hash" to hash)
         ).parsedSafe<TorBoxCheckCachedResponse>()
-        
-        // Controlla se la risposta contiene l'hash come 'true'
         return response?.success == true && response.data[hash] == true
+    }
+
+    suspend fun getStreamUrl(hash: String): String? {
+        val url = "https://api.torbox.app/v1/api/torrents/requestdl"
+        val response = app.post(
+            url,
+            headers = mapOf("Authorization" to "Bearer $TEST_API_KEY"),
+                                data = mapOf("hash" to hash, "file_id" to "0")
+        ).parsedSafe<TorBoxDownloadResponse>()
+
+        return response?.data?.url
     }
 }

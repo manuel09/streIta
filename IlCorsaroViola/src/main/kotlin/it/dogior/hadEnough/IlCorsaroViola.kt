@@ -270,38 +270,44 @@ class IlCorsaroViola : TmdbProvider() {
             )
         val response = app.post("$vercelUrl/${showDetail.type}", json = body).text
         val torrents = tryParseJson<VercelResponse>(response) ?: return false
-        torrents.results.map {
-            val magnet = buildString {
-                append(it.magnet)
-                trackers.forEach { tracker ->
-                    if (tracker.isNotBlank()) {
-                        append("&tr=").append(tracker.trim())
+        // Recupera la chiave API (se configurata dall'utente)
+        val apiKey = getTorBoxApiKey()
+
+        // Se la chiave esiste, proviamo TorBox
+        if (!apiKey.isNullOrBlank()) {
+            torrents.results.forEach { torrent ->
+                val hash = torrent.magnet.substringAfter("xt=urn:btih:").substringBefore("&")
+
+                // Test diretto senza passare dalla UI
+                if (TorBoxHelper.isCached(hash)) {
+                    val streamUrl = TorBoxHelper.getStreamUrl(hash)
+                    if (streamUrl != null) {
+                        callback.invoke(
+                            newExtractorLink(this.name, "[TORBOX] ${torrent.title}", streamUrl, ExtractorLinkType.VIDEO)
+                        )
                     }
+                } else {
+                    // Fallback al magnet originale
+                    val magnet = torrent.magnet // ... (aggiungi i tracker come prima)
+                    callback.invoke(newExtractorLink(this.name, "[P2P] ${torrent.title}", magnet, ExtractorLinkType.MAGNET))
                 }
             }
-            callback.invoke(
-                newExtractorLink(this.name, it.title, magnet, ExtractorLinkType.MAGNET)
-            )
+        } else {
+            // Logica originale (P2P puro) se non c'è chiave API
+            torrents.results.map {
+                val magnet = buildString {
+                    append(it.magnet)
+                    trackers.forEach { tracker ->
+                        if (tracker.isNotBlank()) {
+                            append("&tr=").append(tracker.trim())
+                        }
+                    }
+                }
+                callback.invoke(
+                    newExtractorLink(this.name, it.title, magnet, ExtractorLinkType.MAGNET)
+                )
+            }
         }
 
         return true
     }
-
-
-    private fun getImageUrl(link: String?, getOriginal: Boolean = false): String? {
-        if (link == null) return null
-        val width = if (getOriginal) "original" else "w500"
-        return if (link.startsWith("/")) "https://image.tmdb.org/t/p/$width/$link" else link
-    }
-
-    private fun Media.toSearchResponse(type: String = "tv"): SearchResponse? {
-        if (mediaType == "person") return null
-        return newMovieSearchResponse(
-            title ?: name ?: originalTitle ?: return null,
-            Data(id = id, type = mediaType ?: type).toJson(),
-            TvType.Movie,
-        ) {
-            this.posterUrl = getImageUrl(posterPath)
-        }
-    }
-}
