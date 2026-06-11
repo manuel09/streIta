@@ -160,7 +160,10 @@ class Loonex : MainAPI() {
             data
         } else {
             val guardaUrl = "$guardaBase/?id=$data"
-            val guardaDoc = app.get(guardaUrl).text
+            val guardaDoc = app.get(
+                guardaUrl,
+                headers = mapOf("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+            ).text
             decryptVideoUrl(guardaDoc) ?: return false
         }
 
