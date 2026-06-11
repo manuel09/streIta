@@ -152,7 +152,7 @@ class Loonex : MainAPI() {
         val posterUrl = img?.attr("abs:src")?.ifEmpty { null }
         val title = element.ownText().trim().ifEmpty {
             element.select("div.card-title-cine").text().ifEmpty {
-                img?.attr("alt")?.trim().ifEmpty { "Sconosciuto" }
+                img?.attr("alt")?.trim().takeIf { it.isNotEmpty() } ?: "Sconosciuto"
             }
         }
         if (title == "Sconosciuto") return null
