@@ -10,6 +10,7 @@ import com.lagradost.cloudstream3.SearchResponse
 import com.lagradost.cloudstream3.SeasonData
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.TvType
+import com.lagradost.cloudstream3.LoadResponse.Companion.addScore
 import com.lagradost.cloudstream3.addPoster
 import com.lagradost.cloudstream3.addSeasonNames
 import com.lagradost.cloudstream3.app
@@ -130,9 +131,8 @@ class Tantifilm : MainAPI() {
                 this.backgroundPosterUrl = backdrop
                 this.plot = plot
                 this.year = year
-                this.rating = rating
+                addScore(rating?.toString() ?: "")
                 this.duration = duration
-                this.tagline = tagline
                 this.tags = genres
             }
         } else {
@@ -150,20 +150,20 @@ class Tantifilm : MainAPI() {
                     val epNum = opt.attr("value").toIntOrNull() ?: return@mapNotNull null
                     val epName = opt.text().trim()
                     val epData = mapOf(
-                        "season" to seasons.first().number.toString(),
+                        "season" to seasons.first().season.toString(),
                         "episode" to epNum.toString(),
                         "tmdbId" to (tmdbId ?: ""),
                     )
                     newEpisode(epData.toJson()) {
                         this.name = epName
-                        this.season = seasons.first().number
+                        this.season = seasons.first().season
                         this.episode = epNum
                     }
                 }
                 episodes.addAll(currentSeasonEps)
 
                 for (i in 1 until seasons.size) {
-                    val seasonNum = seasons[i].number
+                    val seasonNum = seasons[i].season
                     try {
                         val seasonDoc = app.get("$fullUrl?season=$seasonNum").document
                         val seasonEps = seasonDoc.select("#episode-select option").mapNotNull { opt ->
@@ -191,8 +191,7 @@ class Tantifilm : MainAPI() {
                 this.backgroundPosterUrl = backdrop
                 this.plot = plot
                 this.year = year
-                this.rating = rating
-                this.tagline = tagline
+                addScore(rating?.toString() ?: "")
             }
         }
     }
