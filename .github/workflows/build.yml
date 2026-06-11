@@ -42,7 +42,9 @@ jobs:
           java-version: 17
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4.0.1
+        run: |
+          echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-36" "build-tools;36.0.0" 2>/dev/null || echo "Skipping SDK install (may already be present)"
 
       - name: Access Secrets
         env:
