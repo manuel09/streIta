@@ -168,12 +168,12 @@ class Loonex : MainAPI() {
     }
 
     private fun parseCard(element: Element): SearchResponse? {
-        val href = element.attr("abs:href")
-        val fullUrl = href.takeIf { it.isNotBlank() } ?: return null
+        val fullUrl = element.absUrl("href").ifEmpty {
+            val href = element.attr("href")
+            if (href.startsWith("http")) href else "$cartoonBase/$href"
+        }.takeIf { it.isNotBlank() } ?: return null
         val img = element.select("img.card-img-bg").firstOrNull() ?: element.select("img").firstOrNull()
-        val posterUrl = img?.let {
-            it.attr("abs:src").ifBlank { it.attr("abs:data-src") }
-        }?.takeIf { it.isNotBlank() }
+        val posterUrl = img?.attr("abs:src")?.takeIf { it.isNotBlank() }
         val title = element.select("div.card-title-cine").text().ifEmpty {
             (img?.attr("alt") ?: "").trim()
         }
