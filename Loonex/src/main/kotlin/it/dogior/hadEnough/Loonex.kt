@@ -41,17 +41,28 @@ class Loonex : MainAPI() {
             }
         }
 
-        val catTitleEl = doc.select("h3.cat-title").firstOrNull()
-        if (catTitleEl != null) {
-            val title = catTitleEl.text().trim().ifEmpty { "Catalogo" }
-            val container = catTitleEl.nextElementSibling()
-            if (container != null) {
-                val cards = container.select("a[href*=\"?cartone=\"]").mapNotNull { el ->
-                    parseCard(el)?.takeIf { seenUrls.add(it.url) }
+        val sections = doc.select("h3.cat-title, h3.brand-font, h2")
+        for (section in sections) {
+            val sectionTitle = section.ownText().trim().ifEmpty {
+                section.text().trim()
+            }
+            if (sectionTitle.isBlank()) continue
+
+            val cards = mutableListOf<SearchResponse>()
+            var container = section.nextElementSibling()
+            while (container != null && container.tagName() != "h2" && container.tagName() != "h3") {
+                val items = container.select("a[href*=\"?cartone=\"]")
+                for (item in items) {
+                    val searchResp = parseCard(item) ?: continue
+                    if (seenUrls.add(searchResp.url)) {
+                        cards.add(searchResp)
+                    }
                 }
-                if (cards.isNotEmpty()) {
-                    lists.add(HomePageList(title, cards))
-                }
+                container = container.nextElementSibling()
+            }
+
+            if (cards.isNotEmpty()) {
+                lists.add(HomePageList(sectionTitle, cards))
             }
         }
 
@@ -171,7 +182,7 @@ class Loonex : MainAPI() {
         val fullUrl = element.absUrl("href").ifEmpty {
             val href = element.attr("href")
             if (href.startsWith("http")) href else "$cartoonBase/$href"
-        }.takeIf { it.isNotBlank() } ?: return null
+        }
         val img = element.select("img.card-img-bg").firstOrNull() ?: element.select("img").firstOrNull()
         val posterUrl = img?.attr("abs:src")?.takeIf { it.isNotBlank() }
         val title = element.select("div.card-title-cine").text().ifEmpty {
