@@ -2,7 +2,8 @@ package it.dogior.hadEnough
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.INFER_TYPE
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
+import com.lagradost.cloudstream3.utils.Qualities
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import org.jsoup.nodes.Element
 
@@ -20,11 +21,14 @@ class Loonex : MainAPI() {
         val doc = app.get(cartoonBase).document
         val lists = mutableListOf<HomePageList>()
 
-        val sections = doc.select("h3.cat-title, h2, div.seamless-band h3")
-            ?: doc.select("h2, h3")
+        val sections = doc.select("h3.cat-title, h3.brand-font, h2, div.seamless-band h3")
+
+        val seenUrls = mutableSetOf<String>()
 
         for (section in sections) {
-            val sectionTitle = section.text().trim()
+            val sectionTitle = section.ownText().trim().ifEmpty {
+                section.text().trim()
+            }
             if (sectionTitle.isBlank()) continue
 
             val cards = mutableListOf<SearchResponse>()
@@ -33,7 +37,9 @@ class Loonex : MainAPI() {
                 val items = container.select("a[href*=\"?cartone=\"]")
                 for (item in items) {
                     val searchResp = parseCard(item) ?: continue
-                    cards.add(searchResp)
+                    if (seenUrls.add(searchResp.url)) {
+                        cards.add(searchResp)
+                    }
                 }
                 container = container.nextElementSibling()
             }
@@ -63,17 +69,20 @@ class Loonex : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url).document
 
-        val title = doc.select("meta[property=\"og:title\"]").attr("content").ifEmpty {
-            doc.select("h1").text().ifEmpty { "Sconosciuto" }
+        val title = doc.select("h1").text().ifEmpty {
+            doc.select("meta[property=\"og:title\"]").attr("content")
+                .replace(" | Streaming ITA GRATIS", "")
+                .ifEmpty { "Sconosciuto" }
         }
         val plot = doc.select("meta[property=\"og:description\"]").attr("content")
         val poster = doc.select("meta[property=\"og:image\"]").attr("content")
             .ifEmpty { doc.select("img.card-img-bg, img.detail-poster").attr("abs:src") }
 
         val episodeLinks = doc.select("a[href*=\"/guarda/?id=\"]")
+        val ogDesc = doc.select("meta[property=\"og:description\"]").attr("content")
         val isMovie = episodeLinks.size <= 1 ||
             doc.text().contains("FILM COMPLETO") ||
-            url.contains("film")
+            ogDesc.contains("FILM COMPLETO")
 
         if (isMovie) {
             val episodeId = episodeLinks.firstOrNull()?.attr("href")?.substringAfter("?id=") ?: ""
@@ -128,7 +137,8 @@ class Loonex : MainAPI() {
         val m3u8Url = if (data.startsWith("http")) {
             data
         } else {
-            val guardaDoc = app.get("$guardaBase/?id=$data").text
+            val guardaUrl = "$guardaBase/?id=$data"
+            val guardaDoc = app.get(guardaUrl).text
             decryptVideoUrl(guardaDoc) ?: return false
         }
 
@@ -137,23 +147,26 @@ class Loonex : MainAPI() {
                 this.name,
                 this.name,
                 m3u8Url,
-                type = INFER_TYPE
-            )
+                type = ExtractorLinkType.M3U8
+            ) {
+                this.referer = "$guardaBase/"
+                this.quality = Qualities.Unknown.value
+            }
         )
         return true
     }
 
     private fun parseCard(element: Element): SearchResponse? {
-        val href = element.attr("href")
-        val fullUrl = if (href.startsWith("http")) href else "$cartoonBase/$href"
-        val img = element.select("img").firstOrNull()
-        val posterUrl = img?.attr("abs:src")?.ifEmpty { null }
-        val title = element.ownText().trim().ifEmpty {
-            element.select("div.card-title-cine").text().ifEmpty {
-                (img?.attr("alt") ?: "").trim().ifEmpty { "Sconosciuto" }
-            }
+        val fullUrl = element.absUrl("href").ifEmpty {
+            val href = element.attr("href")
+            if (href.startsWith("http")) href else "$cartoonBase/$href"
         }
-        if (title == "Sconosciuto") return null
+        val img = element.select("img").firstOrNull()
+        val posterUrl = img?.attr("abs:src")?.takeIf { it.isNotBlank() }
+        val title = element.select("div.card-title-cine").text().ifEmpty {
+            (img?.attr("alt") ?: "").trim()
+        }
+        if (title.isBlank()) return null
 
         val isMovie = element.text().contains("FILM COMPLETO")
         val type = if (isMovie) TvType.Movie else TvType.TvSeries
