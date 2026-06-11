@@ -77,8 +77,7 @@ class Loonex : MainAPI() {
 
         if (isMovie) {
             val episodeId = episodeLinks.firstOrNull()?.attr("href")?.substringAfter("?id=") ?: ""
-            val episodeUrl = "$guardaBase/?id=$episodeId"
-            return newMovieLoadResponse(title, url, TvType.Movie, episodeUrl) {
+            return newMovieLoadResponse(title, url, TvType.Movie, episodeId) {
                 this.posterUrl = poster
                 this.plot = plot
             }
@@ -107,8 +106,7 @@ class Loonex : MainAPI() {
                         ?: link.previousElementSibling()?.text()?.trim()
                         ?: "Episodio"
                     val episodeId = link.attr("href").substringAfter("?id=")
-                    val epUrl = "$guardaBase/?id=$episodeId"
-                    episodes.add(newEpisode(epUrl) { this.name = epName })
+                    episodes.add(newEpisode(episodeId) { this.name = epName })
                 }
             }
         }
@@ -175,15 +173,13 @@ class Loonex : MainAPI() {
         val link = epRow.select("a[href*=\"/guarda/?id=\"]").firstOrNull() ?: return null
         val episodeId = link.attr("href").substringAfter("?id=")
         if (episodeId.isBlank()) return null
-        val epUrl = "$guardaBase/?id=$episodeId"
-
         val epTitle = epRow.select("span.episode-title").text().ifEmpty {
             epRow.ownText().trim().ifEmpty { "Episodio" }
         }
 
         val (season, episode) = parseSeasonEpisode(epTitle)
 
-        return newEpisode(epUrl) {
+        return newEpisode(episodeId) {
             this.name = epTitle
             this.season = season
             this.episode = episode
