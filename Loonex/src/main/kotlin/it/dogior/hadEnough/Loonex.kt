@@ -107,9 +107,8 @@ class Loonex : MainAPI() {
             ogDesc.contains("FILM COMPLETO")
 
         if (isMovie) {
-            val link = episodeLinks.firstOrNull()
-            val episodeUrl = link?.attr("href") ?: ""
-            return newMovieLoadResponse(title, url, TvType.Movie, episodeUrl) {
+            val episodeId = episodeLinks.firstOrNull()?.attr("href")?.substringAfter("?id=") ?: ""
+            return newMovieLoadResponse(title, url, TvType.Movie, episodeId) {
                 this.posterUrl = poster
                 this.plot = plot
             }
@@ -137,8 +136,8 @@ class Loonex : MainAPI() {
                     val epName = link.parent()?.ownText()?.trim()
                         ?: link.previousElementSibling()?.text()?.trim()
                         ?: "Episodio"
-                    val epUrl = link.attr("href")
-                    episodes.add(newEpisode(epUrl) { this.name = epName })
+                    val episodeId = link.attr("href").substringAfter("?id=")
+                    episodes.add(newEpisode(episodeId) { this.name = epName })
                 }
             }
         }
@@ -161,7 +160,7 @@ class Loonex : MainAPI() {
             data
         } else {
             val guardaUrl = "$guardaBase/?id=$data"
-            val guardaDoc = app.get(guardaUrl).text
+            val guardaDoc = app.get(guardaUrl, referer = "$cartoonBase/").text
             decryptVideoUrl(guardaDoc) ?: return false
         }
 
@@ -207,8 +206,7 @@ class Loonex : MainAPI() {
 
     private fun parseEpisodeRow(epRow: Element, seasonName: String): Episode? {
         val link = epRow.select("a[href*=\"/guarda/?id=\"]").firstOrNull() ?: return null
-        val href = link.attr("href")
-        val episodeId = href.substringAfter("?id=")
+        val episodeId = link.attr("href").substringAfter("?id=")
         if (episodeId.isBlank()) return null
         val epTitle = epRow.select("span.episode-title").text().ifEmpty {
             epRow.ownText().trim().ifEmpty { "Episodio" }
@@ -216,7 +214,7 @@ class Loonex : MainAPI() {
 
         val (season, episode) = parseSeasonEpisode(epTitle)
 
-        return newEpisode(href) {
+        return newEpisode(episodeId) {
             this.name = epTitle
             this.season = season
             this.episode = episode
