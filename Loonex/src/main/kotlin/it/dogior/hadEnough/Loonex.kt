@@ -160,7 +160,7 @@ class Loonex : MainAPI() {
             data
         } else {
             val guardaUrl = "$guardaBase/?id=$data"
-            val guardaDoc = app.get(guardaUrl, referer = "$cartoonBase/").text
+            val guardaDoc = app.get(guardaUrl).text
             decryptVideoUrl(guardaDoc) ?: return false
         }
 
