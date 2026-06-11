@@ -36,20 +36,15 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import com.lagradost.cloudstream3.utils.getPreference
 
 class IlCorsaroViola : TmdbProvider() {
-    override var mainUrl = "https://db.corsaroviola.dpdns.org"
+    override var mainUrl = "https://icvdb.stremio-italia.eu"
     override var name = "Il Corsaro Viola"
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Torrent)
     override var lang = "it"
     override val hasMainPage = true
     private val tmdbAPI = "https://api.themoviedb.org/3"
     private val TRACKER_LIST_URL = "https://newtrackon.com/api/stable"
-    private fun getTorBoxApiKey(): String? {
-    return getPreference("torbox_api_key")
-}
-
     private val apiKey = BuildConfig.TMDB_API
     private val authHeaders =
         mapOf("Authorization" to "Bearer $apiKey")
@@ -270,10 +265,8 @@ class IlCorsaroViola : TmdbProvider() {
             )
         val response = app.post("$vercelUrl/${showDetail.type}", json = body).text
         val torrents = tryParseJson<VercelResponse>(response) ?: return false
-        // Recupera la chiave API (se configurata dall'utente)
-        val apiKey = getTorBoxApiKey()
+        val apiKey = BuildConfig.TORBOX_API
 
-        // Se la chiave esiste, proviamo TorBox
         if (!apiKey.isNullOrBlank()) {
             torrents.results.forEach { torrent ->
                 val hash = torrent.magnet.substringAfter("xt=urn:btih:").substringBefore("&")
@@ -311,3 +304,21 @@ class IlCorsaroViola : TmdbProvider() {
 
         return true
     }
+
+    private fun getImageUrl(link: String?, getOriginal: Boolean = false): String? {
+        if (link == null) return null
+        val width = if (getOriginal) "original" else "w500"
+        return if (link.startsWith("/")) "https://image.tmdb.org/t/p/$width/$link" else link
+    }
+
+    private fun Media.toSearchResponse(type: String = "tv"): SearchResponse? {
+        if (mediaType == "person") return null
+        return newMovieSearchResponse(
+            title ?: name ?: originalTitle ?: return null,
+            Data(id = id, type = mediaType ?: type).toJson(),
+            TvType.Movie,
+        ) {
+            this.posterUrl = getImageUrl(posterPath)
+        }
+    }
+}

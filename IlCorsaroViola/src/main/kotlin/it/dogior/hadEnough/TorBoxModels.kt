@@ -15,3 +15,12 @@ data class TorBoxCreateTorrentResponse(
 data class TorBoxTorrentData(
     val torrent_id: String
 )
+
+data class TorBoxDownloadResponse(
+    val success: Boolean,
+    val data: TorBoxDownloadData?
+)
+
+data class TorBoxDownloadData(
+    val url: String?
+)

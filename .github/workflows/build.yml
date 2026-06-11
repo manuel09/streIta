@@ -49,11 +49,13 @@ jobs:
           TMDB_API: ${{ secrets.TMDB_API }}
           SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
           ILCORSAROVIOLAVERCEL: ${{ secrets.ILCORSAROVIOLAVERCEL }}
+          TORBOX_API: ${{ secrets.TORBOX_API }}
         run: |
           cd $GITHUB_WORKSPACE/src
           echo TMDB_API=$TMDB_API >> secrets.properties
           echo SIMKL_CLIENT_ID=$SIMKL_CLIENT_ID >> secrets.properties
           echo ILCORSAROVIOLAVERCEL=$ILCORSAROVIOLAVERCEL >> secrets.properties
+          echo TORBOX_API=$TORBOX_API >> secrets.properties
 
       - name: Build Plugins
         run: |
