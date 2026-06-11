@@ -1,4 +1,4 @@
-version = 1
+version = 2
 
 cloudstream {
     description = "Cartoni animati in streaming ITA da loonex.eu"
