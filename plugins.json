@@ -1,0 +1,371 @@
+[
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/AltaDefinizione.cs3",
+        "status": 0,
+        "version": 8,
+        "name": "AltaDefinizione",
+        "internalName": "AltaDefinizione",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Movies and Tv Series from Altadefinizione",
+        "fileSize": 21660,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "Documentary"
+        ],
+        "iconUrl": "https://altadefinizione.autos/templates/Dark/img/favicon.ico",
+        "apiVersion": 1,
+        "fileHash": "sha256-b579493dfeb4dab19b1c58933f5e7072b05f8754bb3076ad96f1889f0dc821ca"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/AnimeUnity.cs3",
+        "status": 1,
+        "version": 26,
+        "name": "AnimeUnity",
+        "internalName": "AnimeUnity",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Anime from AnimeUnity",
+        "fileSize": 134259,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime",
+            "OVA"
+        ],
+        "iconUrl": "https://www.animeunity.so/apple-touch-icon.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-75d07be1b8ffe27dbd951f50e0493b049b36d91fc04995adb386a5c5bb08409f"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/AnimeWorld.cs3",
+        "status": 1,
+        "version": 17,
+        "name": "AnimeWorld",
+        "internalName": "AnimeWorld",
+        "authors": [
+            "Gian-Fr",
+            "doGior"
+        ],
+        "description": "Anime from AnimeWorld. This plugin is a fork of the AnimeWorld plugin in the ItalianProvider repo",
+        "fileSize": 41006,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime",
+            "OVA"
+        ],
+        "iconUrl": "https://static.animeworld.ac/assets/images/favicon/android-icon-192x192.png?s",
+        "apiVersion": 1,
+        "fileHash": "sha256-84d039cde5138cca31fc0b1fb7febc69442903533b2be523a17baa9f80eb066b"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/Arte.cs3",
+        "status": 1,
+        "version": 2,
+        "name": "Arte",
+        "internalName": "Arte",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Magazine shows, concerts, documentaries, and more: the European culture channel's programmes available to stream free of charge on arte.tv",
+        "fileSize": 33903,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "en",
+        "tvTypes": [
+            "Documentary"
+        ],
+        "iconUrl": "https://static-cdn.arte.tv/replay/favicons/favicon-194x194.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-7159bfffeb11e99937308eecc82ea7fd0cd504de34a168db0db9847f9179bd86"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/CalcioStreaming.cs3",
+        "status": 1,
+        "version": 9,
+        "name": "CalcioStreaming",
+        "internalName": "CalcioStreaming",
+        "authors": [
+            "Gian-Fr",
+            "Adippe",
+            "doGior"
+        ],
+        "description": "\u26a0\ufe0fUse AdGuard DNS in the app settings\u26a0\ufe0f Live streams from the CalcioStreaming. Forked from the CalcioStreaming plugin in the ItalianProvider repo",
+        "fileSize": 16029,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "Live"
+        ],
+        "iconUrl": "https://fig.direttecommunity.online/templates/calciostreaming1/images/icons/apple-touch-icon.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-15ea4fedcbdddb2399bb6bd5a362828a824a898cc7288fbfc400d0e500e64800"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/CorsaroNero.cs3",
+        "status": 0,
+        "version": 4,
+        "name": "CorsaroNero",
+        "internalName": "CorsaroNero",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Torrents from Il Corsaro Nero. If something doesn't work the torrent has probably not enough seeds",
+        "fileSize": 31775,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "Movie",
+            "Torrent"
+        ],
+        "iconUrl": "https://ilcorsaronero.link/assets/images/icon-dca0f2c8f780ee155024c67b63f5ebc5.svg",
+        "apiVersion": 1,
+        "fileHash": "sha256-ee8cc8e6fffcfd3bf7421ba8d19c81c00a8d5ad9a9f03b11ac7875b1df7acf76"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/IlCorsaroViola.cs3",
+        "status": 1,
+        "version": 1,
+        "name": "IlCorsaroViola",
+        "internalName": "IlCorsaroViola",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Torrents from Il Corsaro Viola",
+        "fileSize": 50317,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "Torrent",
+            "Documentary"
+        ],
+        "iconUrl": "https://i.imgur.com/OPM9e9p.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-12398c8ffa6db60a8d987d3cbd3123140e0481cdcf588e6f5628c36f916f683f"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/IPTV.cs3",
+        "status": 1,
+        "version": 1,
+        "name": "IPTV",
+        "internalName": "IPTV",
+        "authors": [
+            "anhdaden",
+            "dogior"
+        ],
+        "description": "General IPTV player. Add a list in the settings and you'll see it in the plugins list in the home",
+        "fileSize": 40201,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "tvTypes": [
+            "Live"
+        ],
+        "iconUrl": "https://www.shutterstock.com/image-vector/iptv-vector-line-icon-ip-260nw-1841427610.jpg",
+        "apiVersion": 1,
+        "fileHash": "sha256-cb54cae47d9564577334a4bffb536dc2db7776fa6538f2f789fbb934fd57c756"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/Loonex.cs3",
+        "status": 1,
+        "version": 8,
+        "name": "Loonex",
+        "internalName": "Loonex",
+        "authors": [
+            "doGior",
+            "streIta"
+        ],
+        "description": "Cartoni animati in streaming ITA da loonex.eu",
+        "fileSize": 15769,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "Cartoon",
+            "TvSeries",
+            "Movie",
+            "Anime"
+        ],
+        "iconUrl": "https://loonex.eu/archivio-cartoni-logo.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-7319dad83e9c28de24a2e0b6b875583d4b160f1e690bd4b36ed22d9f410ff09c"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/Nebula.cs3",
+        "status": 1,
+        "version": 1,
+        "name": "Nebula",
+        "internalName": "Nebula",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Plugin to watch the free videos and ONLY THE FREE VIDEOS from nebula.tv",
+        "fileSize": 23974,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "en",
+        "tvTypes": [
+            "Others"
+        ],
+        "iconUrl": "https://nebula.tv/apple-touch-icon.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-fe6506acd214848848120a1b96052dec7539d18db9e96c110fe20345b5561500"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/SimklProvider.cs3",
+        "status": 1,
+        "version": 2,
+        "name": "SimklProvider",
+        "internalName": "SimklProvider",
+        "authors": [
+            "doGior"
+        ],
+        "description": "No Streaming. This is just to open the info page of a show from the simkl library",
+        "fileSize": 11790,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "en",
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime",
+            "OVA",
+            "TvSeries",
+            "Movie",
+            "Documentary",
+            "Cartoon"
+        ],
+        "iconUrl": "https://eu.simkl.in/img_favicon/v2/favicon-192x192.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-6ee0015ab2efd56e8e204ec62ab885a589a25747e4f5db0e00f497628ddc2d01"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/StreamCenter.cs3",
+        "status": 1,
+        "version": 1,
+        "name": "StreamCenter",
+        "internalName": "StreamCenter",
+        "authors": [
+            "Italiani"
+        ],
+        "description": "Lavori in corso.",
+        "fileSize": 209344,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "Anime",
+            "AnimeMovie"
+        ],
+        "iconUrl": "https://www.themoviedb.org/favicon.ico",
+        "apiVersion": 1,
+        "fileHash": "sha256-c6098bb1f9b25c2e2c7a8b4bce0ee0266072b6cc2e9fb5b832ef39ba59146d55"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/StreamingCommunity.cs3",
+        "status": 1,
+        "version": 30,
+        "name": "StreamingCommunity",
+        "internalName": "StreamingCommunity",
+        "authors": [
+            "doGior"
+        ],
+        "description": "TV Shows and Movies from StreamingCommunity",
+        "fileSize": 58505,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "TvSeries",
+            "Movie",
+            "Documentary",
+            "Cartoon"
+        ],
+        "iconUrl": "https://streamingunity.dog/apple-touch-icon.png?v=2",
+        "apiVersion": 1,
+        "fileHash": "sha256-370d3c840028e400c5739d23e1afa50759e7372b9a647c1aede75b2145d9811a"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/Tantifilm.cs3",
+        "status": 1,
+        "version": 1,
+        "name": "Tantifilm",
+        "internalName": "Tantifilm",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Film e Serie TV in streaming da Tantifilm",
+        "fileSize": 18403,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "language": "it",
+        "tvTypes": [
+            "Movie",
+            "TvSeries"
+        ],
+        "iconUrl": "https://tantifilm.online/assets/img/favicon-1756880111.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-65ccc3e6a262f14872a4dc67c8e969da9f86fcbc86797541cffe7c1119e4f3cb"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/TV.cs3",
+        "status": 1,
+        "version": 3,
+        "name": "TV",
+        "internalName": "TV",
+        "authors": [
+            "Gian-Fr",
+            "Adippe",
+            "doGior"
+        ],
+        "description": "Live streams from the Free TV github repository. Forked from the Free-TV plugin in the ItalianProvider repo",
+        "fileSize": 29221,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "tvTypes": [
+            "Live"
+        ],
+        "iconUrl": "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/refs/heads/master/TV/television.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-eee2084006e447f4a65a0043de2e2d0fda664856aa3502a0226d90b981384799"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/Vavoo.cs3",
+        "status": 1,
+        "version": 6,
+        "name": "Vavoo",
+        "internalName": "Vavoo",
+        "authors": [
+            "doGior"
+        ],
+        "description": "\u26a0\ufe0f W.I.P. \u26a0\ufe0f TV channels from vavoo.to",
+        "fileSize": 36076,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "tvTypes": [
+            "Live"
+        ],
+        "iconUrl": "https://vavoo.tv/favicon.ico",
+        "apiVersion": 1,
+        "fileHash": "sha256-d6d5e94405aec9e6ea17bf07308c6abfc8879c1573f1f9fb669c4bc138809d57"
+    },
+    {
+        "url": "https://raw.githubusercontent.com/manuel09/streIta/builds/YouTube.cs3",
+        "status": 0,
+        "version": 13,
+        "name": "YouTube",
+        "internalName": "YouTube",
+        "authors": [
+            "doGior"
+        ],
+        "description": "Videos, playlists and channels from YouTube",
+        "fileSize": 40000,
+        "repositoryUrl": "https://github.com/manuel09/streIta",
+        "tvTypes": [
+            "Others"
+        ],
+        "iconUrl": "https://www.youtube.com/s/desktop/711fd789/img/logos/favicon_144x144.png",
+        "apiVersion": 1,
+        "fileHash": "sha256-e0f0100eb9cbe0d91bd7a1771401820ac32a850cc3c5fe70220c74df56c36eb3"
+    }
+]
